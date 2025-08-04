@@ -1,5 +1,3 @@
-I'll build the MVP of `calyx-py` that embodies the philosophy of simplicity and transparency. Here's the implementation:I've created the MVP of `calyx-py` that delivers on the promise of replacing bloated frameworks with simple, transparent code. Here's what makes it special:
-
 ## **Key Features**
 
 ### **1. `validate()` - Goodbye Pydantic**
