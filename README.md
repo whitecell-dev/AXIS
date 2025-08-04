@@ -1,5 +1,7 @@
 CALYX-PY is Python without the ceremony.
+
 It replaces bloated frameworks with clean YAML + Python logic.
+
 It lets devs:
 
     validate data like Pydantic
@@ -95,4 +97,6 @@ This is just the beginning. The code is intentionally simple and extensible. No 
 
 The entire framework is ~300 lines of readable code that any developer can understand and modify. Compare that to the thousands of lines in Pydantic, FastAPI, or LangChain!
 
-Welcome to the Python reset. 
+Welcome to the Python reset.
+
+Tags: yaml validation LLM reasoning cli minimal

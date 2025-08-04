@@ -1,0 +1,17 @@
+# Example CALYX rules
+schema:
+  age: int
+  score: float
+
+rules:
+  - if: "age >= 18 and score > 0.8"
+    then:
+      status: "approved"
+
+  - if: "age >= 18"
+    then:
+      status: "review"
+
+  - else:
+    then:
+      status: "denied"

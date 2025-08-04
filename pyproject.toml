@@ -1,0 +1,11 @@
+[project]
+name = "calyx-py"
+description = "Minimal Python AI utils: schema validation, rules, LLM fallback, no bloat"
+version = "0.1.0"
+authors = [{name = "Maykon Meza"}]
+dependencies = ["pyyaml", "requests"]
+requires-python = ">=3.8"
+
+[project.scripts]
+calyx-py = "calyx.cli:main"  # Optional CLI runner
+
