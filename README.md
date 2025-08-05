@@ -65,13 +65,14 @@ I’ve just created a logic-based GPT app — without a backend.
 
 ✨ Why This Is Different
 
-|Feature|	ChatGPT Alone|	ChatGPT + CALYX-PY|
------------------------------------------------
-|Static analysis| 	❌|	✅ @typecheck()|
-|Input validation|	❌| ✅ validate()|
-|Rule-based logic|	❌|	✅ RuleEngine()|
-|HTTP APIs| ❌| ✅ .serve()|
-|Self-healing logic| ❌| ✅ @fallback()|
+| Feature              | ChatGPT Alone | ChatGPT + CALYX-PY     |
+|----------------------|----------------|--------------------------|
+| Static analysis      | ❌             | ✅ `@typecheck()`        |
+| Input validation     | ❌             | ✅ `validate()`          |
+| Rule-based logic     | ❌             | ✅ `RuleEngine()`        |
+| HTTP APIs            | ❌             | ✅ `.serve()`            |
+| Self-healing logic   | ❌             | ✅ `@fallback()`         |
+
 
 You’re not just pasting code.
 You’re extending ChatGPT’s core capabilities.
