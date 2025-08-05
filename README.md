@@ -4,7 +4,7 @@
     You don’t need a server to start an API.
     You don’t need agents to use AI.
 
-*You just need one file.
+You just need one file.
 
 
 CALYX-PY is Python without the ceremony.
@@ -25,9 +25,9 @@ It lets devs:
 CALYX-PY is Python re-rooted in UNIX philosophy:
 Do one thing well, pipe everything, be auditable.
 
-Supercharged CALYX-PY Demo Prompt (Just Paste into ChatGPT)
+##Supercharged CALYX-PY Demo Prompt (Just Paste into ChatGPT)
 
-## The fastest way to bootstrap Python logic with no setup, no frameworks, and AI only if you need it.
+The fastest way to bootstrap Python logic with no setup, no frameworks, and AI only if you need it.
 ```
 SYSTEM PROMPT (for ChatGPT)
 
@@ -64,9 +64,10 @@ Now demonstrate:
 ```
 ⚠️ NO INSTALL NEEDED ⚠️
 1. Copy this entire message
-2. Paste it into a new ChatGPT chat
-3. Press enter
-4. curl the API that appears
+2. Copy paste the core.py script thats inside of the calyx directory
+3. Paste it into a new ChatGPT chat
+4. Press enter
+5. curl the API that appears
 
 # 🧪 Output You’ll Get Back (Example)
 
