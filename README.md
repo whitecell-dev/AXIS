@@ -99,6 +99,6 @@ The entire framework is ~300 lines of readable code that any developer can under
 
 Welcome to the Python reset.
 
-Skeptical? We are too. Here’s where it breaks (and why we ship anyway).
+Skeptical? We are too. [Here’s where it breaks (and why we ship anyway).](https://github.com/whitecell-dev/CALYX-PY/blob/main/README.rebuttal.md)
 
 Tags: yaml validation LLM reasoning cli minimal
