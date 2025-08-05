@@ -2,6 +2,8 @@
 
 CALYX-PY is a ~300-line Python engine that replaces entire frameworks like:
 
+[![Run in ChatGPT](https://img.shields.io/badge/Run_in_ChatGPT-CALYX--PY-green?logo=OpenAI&logoColor=white)]
+
 | Framework     | Replaced By            |
 |---------------|------------------------|
 | ✅ Pydantic    | `validate()`           |
