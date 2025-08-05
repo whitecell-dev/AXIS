@@ -61,7 +61,7 @@ If you’re building your own ChatGPT GPTs or assistants:
 
     Use RuleEngine to run logic and fallback() to handle errors
 
-I’ve just created a logic-based GPT app — without a backend.
+You’ve just created a logic-based GPT app — without a backend.
 
 ✨ Why This Is Different
 
@@ -164,7 +164,7 @@ This is not a trick. It’s a new programming model:
     🧾 YAML becomes the programming language
 
 Key Features
-1. validate() — Goodbye, Pydantic
+### 1. validate() — Goodbye, Pydantic
 
     is_valid, errors = validate(data, {"name": "str", "age": "int", "email": "str?"})
 
@@ -174,7 +174,7 @@ Auto-coerces types
 
 Works with inline dicts or YAML files
 
-2. @typecheck() — Runtime Type Safety
+### 2. @typecheck() — Runtime Type Safety
 
     @typecheck({"x": "int", "y": "int"})
     def add(data): return data["x"] + data["y"]
@@ -183,7 +183,7 @@ Lightweight and strict
 
 Great for mini-pipelines and agents
 
-3. @fallback() — AI Auto-Fix When Needed
+### 3. @fallback() — AI Auto-Fix When Needed
 
     @fallback(parse, prompt="Extract JSON from: {input}")
     def parse(text): return None
@@ -192,7 +192,7 @@ GPT is only called if your function fails
 
 Prompt templating built-in
 
-4. RuleEngine() — YAML Logic as Code
+### 4. RuleEngine() — YAML Logic as Code
 
     engine = RuleEngine("rules.yaml")
     print(engine.run({"age": 25}))
@@ -206,15 +206,15 @@ No decorators, no boilerplate
 
 Replace This: 
 
-Old Way (Framework)	New Way (CALYX-PY)
+|Old Way (Framework)|	New Way (CALYX-PY)|
+------------------------------------------
+|30 lines of Pydantic|	validate(...)|
 
-30 lines of Pydantic	validate(...)
+|Flask/FastAPI route|	serve()|
 
-Flask/FastAPI route	serve()
+|LangChain chains|	@fallback()|
 
-LangChain chains	@fallback()
-
-MyPy/Typescript	@typecheck()
+|MyPy/Typescript|	@typecheck()|
 
 🛡️ Design Principles
 
