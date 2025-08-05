@@ -237,4 +237,13 @@ Try the official CALYX-PY Bootloader GPT Paste your rules, data, or logic — an
 
 ...and the 95 Theses of CALYX — [as nailed to the Wittenberg Door of modern Python.](https://github.com/whitecell-dev/CALYX-PY/blob/main/The95ThesesofCALYX-PY.md)
 
+```
+---
+> **CALYX-PY is not a library. It's a loaded gun.**
+>
+> If you know Python, you don’t need permission.  
+> If you don’t, now you don’t need the frameworks either.  
+>
+> `# RunRulesNotFrameworks`
+
 Tags: yaml validation AI no-install cli minimal agent logic reasoning
