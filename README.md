@@ -1,13 +1,4 @@
-# Why CALYX-PY Works
-
-    You don’t need 10MB of dependencies to build logic.
-    You don’t need a server to start an API.
-    You don’t need agents to use AI.
-
-You just need one file.
-
-
-CALYX-PY is Python without the ceremony.
+# CALYX-PY is Python without the ceremony.
 
 It replaces bloated frameworks with clean YAML + Python logic.
 
@@ -25,7 +16,7 @@ It lets devs:
 CALYX-PY is Python re-rooted in UNIX philosophy:
 Do one thing well, pipe everything, be auditable.
 
-##Supercharged CALYX-PY Demo Prompt (Just Paste into ChatGPT)
+## Supercharged CALYX-PY Demo Prompt (Just Paste into ChatGPT)
 
 The fastest way to bootstrap Python logic with no setup, no frameworks, and AI only if you need it.
 ```
@@ -69,7 +60,7 @@ Now demonstrate:
 4. Press enter
 5. curl the API that appears
 
-# 🧪 Output You’ll Get Back (Example)
+Output You’ll Get Back (Example)
 
 from calyx import RuleEngine
 
@@ -81,7 +72,7 @@ rules = {
   ]
 }
 
-# Serve API
+Serve API
 engine = RuleEngine(rules)
 engine.serve(port=8080)
 
@@ -180,5 +171,7 @@ The entire framework is ~300 lines of readable code that any developer can under
 Welcome to the Python reset.
 
 Skeptical? We are too. [Here’s where it breaks (and why we ship anyway).](https://github.com/whitecell-dev/CALYX-PY/blob/main/README.rebuttal.md)
+
+Wanna laugh? Read the 95 theses of CALYX 
 
 Tags: yaml validation LLM reasoning cli minimal
