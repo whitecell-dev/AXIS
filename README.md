@@ -172,6 +172,6 @@ Welcome to the Python reset.
 
 Skeptical? We are too. [Here’s where it breaks (and why we ship anyway).](https://github.com/whitecell-dev/CALYX-PY/blob/main/README.rebuttal.md)
 
-Wanna laugh? Read the 95 theses of CALYX 
+Wanna laugh? Read the 95 theses of CALYX [Courtesy of Deepseek](https://github.com/whitecell-dev/CALYX-PY/blob/main/The95ThesesofCALYX-PY.md) 
 
 Tags: yaml validation LLM reasoning cli minimal
