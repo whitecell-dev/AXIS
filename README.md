@@ -233,6 +233,7 @@ MyPy/Typescript	@typecheck()
     Want to skip the manual paste?
 
 Try the official CALYX-PY Bootloader GPT Paste your rules, data, or logic — and build from there.
+
 🤔 Skeptical? We are too.So we wrote [README.rebuttal.md](https://github.com/whitecell-dev/CALYX-PY/blob/main/README.rebuttal.md)
 
 ...and the 95 Theses of CALYX — [as nailed to the Wittenberg Door of modern Python.](https://github.com/whitecell-dev/CALYX-PY/blob/main/The95ThesesofCALYX-PY.md)
