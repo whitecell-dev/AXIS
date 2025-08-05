@@ -244,6 +244,6 @@ Try the official CALYX-PY Bootloader GPT Paste your rules, data, or logic — an
  If you know Python, you don’t need permission.  
  If you don’t, now you don’t need the frameworks either.  
 
- # RunRulesNotFrameworks`
+`# RunRulesNotFrameworks`
 
 Tags: yaml validation AI no-install cli minimal agent logic reasoning
