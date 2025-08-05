@@ -237,7 +237,7 @@ Try the official CALYX-PY Bootloader GPT Paste your rules, data, or logic — an
 
 ...and the 95 Theses of CALYX — [as nailed to the Wittenberg Door of modern Python.](https://github.com/whitecell-dev/CALYX-PY/blob/main/The95ThesesofCALYX-PY.md)
 
-
+Wanna read up on how much money this saves everyone? [Read up](https://github.com/whitecell-dev/CALYX-PY/blob/main/README.savings.md)
 
  **CALYX-PY is not a library. It's a loaded gun.**
 
