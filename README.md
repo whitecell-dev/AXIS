@@ -4,7 +4,7 @@
     You don’t need a server to start an API.
     You don’t need agents to use AI.
 
-You just need one file.
+*You just need one file.
 
 
 CALYX-PY is Python without the ceremony.
@@ -27,7 +27,7 @@ Do one thing well, pipe everything, be auditable.
 
 Supercharged CALYX-PY Demo Prompt (Just Paste into ChatGPT)
 
-##The fastest way to bootstrap Python logic with no setup, no frameworks, and AI only if you need it.
+## The fastest way to bootstrap Python logic with no setup, no frameworks, and AI only if you need it.
 ```
 SYSTEM PROMPT (for ChatGPT)
 
