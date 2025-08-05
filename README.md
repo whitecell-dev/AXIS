@@ -16,7 +16,7 @@ It lets devs:
 CALYX-PY is Python re-rooted in UNIX philosophy:
 Do one thing well, pipe everything, be auditable.
 
-## Supercharged CALYX-PY Demo Prompt (Just Paste into ChatGPT)
+## You can turn your ChatGPT instance into an IDE right now! (Just Paste into ChatGPT)
 
 The fastest way to bootstrap Python logic with no setup, no frameworks, and AI only if you need it.
 ```
