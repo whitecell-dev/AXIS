@@ -206,12 +206,12 @@ No decorators, no boilerplate
 
 Replace This: 
 
-|Old Way (Framework)|	New Way (CALYX-PY)|
+|Old Way (Framework)|New Way (CALYX-PY)|
 ------------------------------------------
-|30 lines of Pydantic|	validate(...)|
-|Flask/FastAPI route|	serve()|
-|LangChain chains|	@fallback()|
-|MyPy/Typescript|	@typecheck()|
+|30 lines of Pydantic|validate(...)|
+|Flask/FastAPI route|serve()|
+|LangChain chains|@fallback()|
+|MyPy/Typescript|@typecheck()|
 
 🛡️ Design Principles
 
