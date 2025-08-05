@@ -11,8 +11,8 @@ CALYX-PY is a ~300-line Python engine that replaces entire frameworks like:
 
 It brings **UNIX philosophy** to modern Python:
 > *Do one thing well. Pipe everything. Be auditable.*
-
-💎 Why ChatGPT Plus Subscribers Should Use CALYX-PY in Every Project
+---
+#💎 Why ChatGPT Plus Subscribers Should Use CALYX-PY in Every Project
 
 If you have a ChatGPT Plus plan, you already have a full Python IDE in your browser — you just didn’t realize it.
 
