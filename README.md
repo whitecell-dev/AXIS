@@ -1,4 +1,31 @@
-#Supercharged CALYX-PY Demo Prompt (Just Paste into ChatGPT)
+#Why CALYX-PY Works
+
+    You don’t need 10MB of dependencies to build logic.
+    You don’t need a server to start an API.
+    You don’t need agents to use AI.
+
+You just need one file.
+
+
+CALYX-PY is Python without the ceremony.
+
+It replaces bloated frameworks with clean YAML + Python logic.
+
+It lets devs:
+
+    validate data like Pydantic
+
+    run reasoning like LangChain
+
+    serve rules like FastAPI
+
+    fall back to AI like LangChain or Guidance
+
+...all with a single file, no imports, and a CLI-native interface.
+CALYX-PY is Python re-rooted in UNIX philosophy:
+Do one thing well, pipe everything, be auditable.
+
+Supercharged CALYX-PY Demo Prompt (Just Paste into ChatGPT)
 
 ##The fastest way to bootstrap Python logic with no setup, no frameworks, and AI only if you need it.
 ```
@@ -62,34 +89,13 @@ curl -X POST http://localhost:8080 \
   -d '{"name": "Jess", "age": 19}'
 → {"group": "minor"}
 
-🧠 Why CALYX-PY Works
+Why CALYX-PY Works
 
     You don’t need 10MB of dependencies to build logic.
     You don’t need a server to start an API.
     You don’t need agents to use AI.
 
 You just need one file.
-
-
-CALYX-PY is Python without the ceremony.
-
-It replaces bloated frameworks with clean YAML + Python logic.
-
-It lets devs:
-
-    validate data like Pydantic
-
-    run reasoning like LangChain
-
-    serve rules like FastAPI
-
-    fall back to AI like LangChain or Guidance
-
-...all with a single file, no imports, and a CLI-native interface.
-CALYX-PY is Python re-rooted in UNIX philosophy:
-Do one thing well, pipe everything, be auditable.
-
-## **Key Features**
 
 ### **1. `validate()` - Goodbye Pydantic**
 ```python
