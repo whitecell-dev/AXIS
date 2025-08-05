@@ -17,17 +17,19 @@ It brings **UNIX philosophy** to modern Python:
 If you have a ChatGPT Plus plan, you already have a full Python IDE in your browser — you just didn’t realize it.
 
 CALYX-PY is the unlock.
+
 ✅ What You Get When You Paste core.py into ChatGPT:
-Capability	With CALYX-PY	Without CALYX-PY
-Validate input	validate()	Manually, error-prone
-Run decision logic	RuleEngine()	Prompt spaghetti
-Serve an API	.serve()	Not possible
-Fix broken functions	@fallback()	Trial-and-error
-Enforce types	@typecheck()	Hope and prayer
+|Capability|With CALYX-PY|	Without CALYX-PY|
+|----------|-------------|------------------|
+|Validate input|	validate()|	Manually, error-prone|
+|Run decision logic|	RuleEngine()|	Prompt spaghetti|
+|Serve an API|	.serve()|	Not possible
+|Fix broken functions|	@fallback()|	Trial-and-error|
+|Enforce types|	@typecheck()|	Hope and prayer|
 
     One file turns ChatGPT from a chatbot into a dev environment.
 
-🧠 Why It’s Like Docker (But for Reasoning)
+Why It’s Like Docker (But for Reasoning)
 
 Docker said:
 
@@ -48,6 +50,7 @@ Both are:
     Developer-first
 
 But CALYX-PY is even easier to share — because it runs in a paste box, not a container runtime.
+
 🔌 Use CALYX-PY in Your Own GPT Projects
 
 If you’re building your own ChatGPT GPTs or assistants:
@@ -58,17 +61,21 @@ If you’re building your own ChatGPT GPTs or assistants:
 
     Use RuleEngine to run logic and fallback() to handle errors
 
-You’ve just created a logic-based GPT app — without a backend.
+I’ve just created a logic-based GPT app — without a backend.
+
 ✨ Why This Is Different
-Feature	ChatGPT Alone	ChatGPT + CALYX-PY
-Static analysis	❌	✅ @typecheck()
-Input validation	❌	✅ validate()
-Rule-based logic	❌	✅ RuleEngine()
-HTTP APIs	❌	✅ .serve()
-Self-healing logic	❌	✅ @fallback()
+
+|Feature |	ChatGPT Alone |	ChatGPT + CALYX-PY |
+------------------------------------------------
+|Static analysis  |	❌ |	✅ @typecheck() |
+|Input validation |	❌	| ✅ validate() |
+|Rule-based logic |	❌ |	✅ RuleEngine() |
+|HTTP APIs	| ❌	| ✅ .serve() |
+|Self-healing logic	| ❌	| ✅ @fallback() |
 
 You’re not just pasting code.
 You’re extending ChatGPT’s core capabilities.
+
 🧩 Use CALYX-PY in:
 
     GPTs that make decisions from user inputs
