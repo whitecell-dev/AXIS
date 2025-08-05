@@ -41,11 +41,11 @@ Now demonstrate:
 3. Press enter
 4. curl the API that appears
 
-🧪 Output You’ll Get Back (Example)
+# 🧪 Output You’ll Get Back (Example)
 
 from calyx import RuleEngine
 
-# Rules (inline YAML equivalent)
+Rules (inline YAML equivalent)
 rules = {
   "rules": [
     {"if": "age >= 21", "then": {"group": "adult"}},
@@ -60,7 +60,7 @@ engine.serve(port=8080)
 curl -X POST http://localhost:8080 \
   -H "Content-Type: application/json" \
   -d '{"name": "Jess", "age": 19}'
-# → {"group": "minor"}
+→ {"group": "minor"}
 
 🧠 Why CALYX-PY Works
 
