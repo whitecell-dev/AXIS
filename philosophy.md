@@ -3,7 +3,7 @@
 
 ---
 
-## **🔥 THE FUNDAMENTAL THEOREM OF SOFTWARE COMPLEXITY**
+## **THE FUNDAMENTAL THEOREM OF SOFTWARE COMPLEXITY**
 
 **Every line of code is a liability until proven otherwise.**
 
@@ -15,7 +15,7 @@ CALYX-PY thinks:
 
 ---
 
-## **📐 THE MATHEMATICS OF MAINTENANCE**
+## **THE MATHEMATICS OF MAINTENANCE**
 
 ### **Complexity Grows Exponentially, Not Linearly**
 
@@ -35,7 +35,7 @@ Framework Size → Debugging Difficulty
 
 ---
 
-## **🧠 THE COGNITIVE LOAD PRINCIPLE**
+## **THE COGNITIVE LOAD PRINCIPLE**
 
 ### **Human Brains Have Fixed RAM**
 
@@ -57,7 +57,7 @@ You can hold ~7 concepts in working memory. Modern frameworks demand 70.
 
 ---
 
-## **⚡ THE UNIX PHILOSOPHY APPLIED TO PYTHON**
+## **THE UNIX PHILOSOPHY APPLIED TO PYTHON**
 
 ### **"Do One Thing Well" vs "Do Everything Poorly"**
 
@@ -72,7 +72,7 @@ You can hold ~7 concepts in working memory. Modern frameworks demand 70.
 
 ---
 
-## **🔍 THE DEBUGGING REVELATION**
+## **THE DEBUGGING REVELATION**
 
 ### **300 Lines = Complete Mental Model**
 
@@ -91,7 +91,7 @@ When something breaks in a 10k-line framework:
 
 ---
 
-## **🎯 THE COMPOSITION PRINCIPLE**
+## **THE COMPOSITION PRINCIPLE**
 
 ### **Small Tools That Compose > Big Tools That Don't**
 
@@ -115,7 +115,7 @@ calyx audit --last
 
 ---
 
-## **💎 THE PREDICTABILITY THEOREM**
+## **THE PREDICTABILITY THEOREM**
 
 ### **Simple Systems Are Predictable Systems**
 
@@ -135,7 +135,7 @@ calyx audit --last
 
 ---
 
-## **🚀 THE VELOCITY PARADOX**
+## **THE VELOCITY PARADOX**
 
 ### **Constraints Increase Speed**
 
@@ -151,13 +151,13 @@ This seems backwards, but it's true:
 - `validate()` for validation
 - `@fallback()` for errors  
 - YAML for configuration
-- ✅ Start building immediately
+- Start building immediately
 
 **"The enemy of art is the absence of limitations." — Orson Welles**
 
 ---
 
-## **🔬 THE COMPREHENSION PROOF**
+## **THE COMPREHENSION PROOF**
 
 ### **Can You Explain It to a Junior Developer?**
 
@@ -171,7 +171,7 @@ This seems backwards, but it's true:
 
 ---
 
-## **⚖️ THE TRADE-OFF MATRIX**
+## **THE TRADE-OFF MATRIX**
 
 ### **What CALYX-PY Gives Up (And Why It's Worth It)**
 
@@ -187,7 +187,7 @@ This seems backwards, but it's true:
 
 ---
 
-## **🎪 THE COMPLEXITY THEATER**
+## **THE COMPLEXITY THEATER**
 
 ### **Most Framework Features Are Performance Art**
 
@@ -206,7 +206,7 @@ This seems backwards, but it's true:
 
 ---
 
-## **🔥 THE CALYX-PY MANIFESTO**
+## **THE CALYX-PY MANIFESTO**
 
 ### **We Believe:**
 
@@ -220,7 +220,7 @@ This seems backwards, but it's true:
 
 ---
 
-## **🏁 THE FINAL ARGUMENT**
+## **THE FINAL ARGUMENT**
 
 ### **The Burden of Proof Has Shifted**
 
@@ -240,7 +240,7 @@ Because every line of code after 300 is:
 
 ---
 
-### **🎯 THE BOTTOM LINE**
+### **THE BOTTOM LINE**
 
 **300 lines of focused code beat 10,000 lines of unfocused code.**
 
@@ -258,4 +258,4 @@ Because every line of code after 300 is:
 
 **— Antoine de Saint-Exupéry**
 
-**Welcome to perfection.** ⚡
+**Welcome to perfection.** 
