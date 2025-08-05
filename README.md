@@ -166,50 +166,55 @@ This is not a trick. It’s a new programming model:
 Key Features
 1. validate() — Goodbye, Pydantic
 
-is_valid, errors = validate(data, {"name": "str", "age": "int", "email": "str?"})
+    is_valid, errors = validate(data, {"name": "str", "age": "int", "email": "str?"})
 
-    Supports optional fields (?)
+Supports optional fields (?)
 
-    Auto-coerces types
+Auto-coerces types
 
-    Works with inline dicts or YAML files
+Works with inline dicts or YAML files
 
 2. @typecheck() — Runtime Type Safety
 
-@typecheck({"x": "int", "y": "int"})
-def add(data): return data["x"] + data["y"]
+    @typecheck({"x": "int", "y": "int"})
+    def add(data): return data["x"] + data["y"]
 
-    Lightweight and strict
+Lightweight and strict
 
-    Great for mini-pipelines and agents
+Great for mini-pipelines and agents
 
 3. @fallback() — AI Auto-Fix When Needed
 
-@fallback(parse, prompt="Extract JSON from: {input}")
-def parse(text): return None
+    @fallback(parse, prompt="Extract JSON from: {input}")
+    def parse(text): return None
 
-    GPT is only called if your function fails
+GPT is only called if your function fails
 
-    Prompt templating built-in
+Prompt templating built-in
 
 4. RuleEngine() — YAML Logic as Code
 
-engine = RuleEngine("rules.yaml")
-print(engine.run({"age": 25}))
-engine.serve(port=8000)  # Instant API!
+    engine = RuleEngine("rules.yaml")
+    print(engine.run({"age": 25}))
+    engine.serve(port=8000)  # Instant API!
 
-    If/then/else rules with safe evaluation
+If/then/else rules with safe evaluation
 
-    JSON/YAML in, JSON out
+JSON/YAML in, JSON out
 
-    No decorators, no boilerplate
+No decorators, no boilerplate
 
-Replace This:
+Replace This: 
+
 Old Way (Framework)	New Way (CALYX-PY)
 30 lines of Pydantic	validate(...)
+
 Flask/FastAPI route	serve()
+
 LangChain chains	@fallback()
+
 MyPy/Typescript	@typecheck()
+
 🛡️ Design Principles
 
     🧼 Minimal Dependencies (pyyaml, requests optional)
@@ -226,12 +231,9 @@ MyPy/Typescript	@typecheck()
 
     Want to skip the manual paste?
 
-Try the official CALYX-PY Bootloader GPT
-Paste your rules, data, or logic — and build from there.
-🤔 Skeptical?
+Try the official CALYX-PY Bootloader GPT Paste your rules, data, or logic — and build from there.
+🤔 Skeptical? We are too.So we wrote [README.rebuttal.md](https://github.com/whitecell-dev/CALYX-PY/blob/main/README.rebuttal.md)
 
-We are too.
-So we wrote README.rebuttal.md
-...and the 95 Theses of CALYX — as nailed to the Wittenberg Door of modern Python.
+...and the 95 Theses of CALYX — [as nailed to the Wittenberg Door of modern Python.](https://github.com/whitecell-dev/CALYX-PY/blob/main/The95ThesesofCALYX-PY.md)
 
 Tags: yaml validation AI no-install cli minimal agent logic reasoning
