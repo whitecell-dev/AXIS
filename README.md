@@ -53,8 +53,8 @@ curl -X POST http://localhost:8080 \
   -H "Content-Type: application/json" \
   -d '{"name": "Jess", "age": 19}'
 # → {"group": "minor"}
-
-🔥 Why CALYX-PY Works
+````
+Why CALYX-PY Works
 
 You’ve created a whole development environment without installing anything. Why?
 
@@ -71,7 +71,7 @@ This is not a trick. It’s a new programming model:
 
     🧾 YAML becomes the programming language
 
-🧠 Key Features
+Key Features
 1. validate() — Goodbye, Pydantic
 
 is_valid, errors = validate(data, {"name": "str", "age": "int", "email": "str?"})
@@ -112,7 +112,7 @@ engine.serve(port=8000)  # Instant API!
 
     No decorators, no boilerplate
 
-🧰 Replace This:
+Replace This:
 Old Way (Framework)	New Way (CALYX-PY)
 30 lines of Pydantic	validate(...)
 Flask/FastAPI route	serve()
