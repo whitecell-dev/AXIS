@@ -1,26 +1,46 @@
-# ***CALYX-PY***
-## Zero-boilerplate λ-calculus for Python
+## CALYX-PY
 
-*Replace Pydantic/FastAPI/LangChain with YAML + pure functions*
+### *Zero-boilerplate λ-calculus for Python*
+
+***Replace Pydantic / FastAPI / LangChain with YAML + pure functions.***
 
 ```python
+from calyx.core import validate, RuleEngine, fallback, typecheck
 
-from calyx.core import validate, RuleEngine, fallback
+### Install
+```bash
+pip install calyx-py
 
-#1. Validate anything
+###60-Second Quickstart
+
+__1) Validate anything__
+```python
 is_valid, errors = validate(data, {"name": "str", "age": "int?"})
 
-#2. Run YAML rules
+__2) Run YAML rules__
+```yaml
+# rules.yaml
+- if: "user.role == 'admin'"
+  then: {access: "full"}
+- else:
+  then: {access: "read"}
+```python
 engine = RuleEngine("rules.yaml")
-result = engine.run({"user": "alice", "age": 25})
+result = engine.run({"user": {"role": "admin"}})
+# {"access": "full"}
 
-#3. Add AI fallback
+__3) Add AI fallback (optional)__
+```python
 @fallback(parse_text, prompt="Extract JSON from: {input}")
 def parse_text(text): ...
-```
-## Why This Exists
 
-    Pydantic → validate() (1 function)
+    Need an API?
+```python
+engine.serve()  # Instant HTTP server
+
+### Why This Exists
+
+    Pydantic → validate() (one function)
 
     FastAPI → RuleEngine().serve() (3 LOC)
 
@@ -28,58 +48,22 @@ def parse_text(text): ...
 
     Mypy → @typecheck() (runtime safety)
 
-## Install
-``` bash
-pip install calyx-py
-```
+Design Principles
 
-## 3 Core Features
-1. Validation
-```python
+    300 LOC — fits in your head
 
-Schema can be dict or YAML path
+    0 hard deps — PyYAML/requests are optional
 
-is_valid, errors = validate(user_data, "schema.yaml")
-```
+    No magic — just Python + YAML
 
-2. Rule Engine
-```yaml
+    Pure reducers — no side effects in logic
 
-rules.yaml
-- if: "user.role == 'admin'"
-  then: {access: "full"}
-- else:
-  then: {access: "read"}
-```
+    No eval — safe by default
 
-```python
-
-engine = RuleEngine("rules.yaml")
-engine.serve()  # Instant API
-```
-
-3. AI Fallback
-```python
-
-@fallback(
-    parse_resume, 
-    prompt="Extract JSON from this resume: {input}"
-)
-
-def parse_resume(text): ...
-```
-## Design Principles
-
-***300 LOC - Fits in your head***
-
-***0 Dependencies - PyYAML/requests optional***
-
-***No Magic - Just Python + YAML***
-
-## For people who want:
+For builders who want
 
 ✔ UNIX philosophy
-
 ✔ Mathematical clarity
-
 ✔ Ownership over their stack
+
+One-liner: Write the rule in YAML. Solve it in Python. Do effects after.
