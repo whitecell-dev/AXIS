@@ -1,7 +1,7 @@
 # CALYX-PY
-
 ## Zero-boilerplate λ-calculus for Python
-** Replace Pydantic/FastAPI/LangChain with YAML + pure functions**
+
+*Replace Pydantic/FastAPI/LangChain with YAML + pure functions*
 
 ```
 python
