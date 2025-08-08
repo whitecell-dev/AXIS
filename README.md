@@ -3,8 +3,7 @@
 
 *Replace Pydantic/FastAPI/LangChain with YAML + pure functions*
 
-```
-python
+```python
 
 from calyx import validate, RuleEngine, fallback
 
@@ -38,13 +37,13 @@ pip install calyx-py
 1. Validation
 python
 
-# Schema can be dict or YAML path
+Schema can be dict or YAML path
 is_valid, errors = validate(user_data, "schema.yaml")
 
 2. Rule Engine
 yaml
 
-# rules.yaml
+rules.yaml
 - if: "user.role == 'admin'"
   then: {access: "full"}
 - else:
@@ -66,13 +65,16 @@ def parse_resume(text): ...
 
 Design Principles
 
-    300 LOC - Fits in your head
+300 LOC - Fits in your head
 
-    0 Dependencies - PyYAML/requests optional
+0 Dependencies - PyYAML/requests optional
 
-    No Magic - Just Python + YAML
+No Magic - Just Python + YAML
 
 For people who want:
+
 ✔ UNIX philosophy
+
 ✔ Mathematical clarity
+
 ✔ Ownership over their stack
