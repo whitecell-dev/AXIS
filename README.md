@@ -5,7 +5,7 @@
 
 ```python
 
-from calyx import validate, RuleEngine, fallback
+from calyx.core import validate, RuleEngine, fallback
 
 #1. Validate anything
 is_valid, errors = validate(data, {"name": "str", "age": "int?"})
@@ -28,10 +28,10 @@ def parse_text(text): ...
 
     Mypy → @typecheck() (runtime safety)
 
-Install
-bash
-
+## Install bash
+``` bash
 pip install calyx-py
+```
 
 3 Core Features
 1. Validation
