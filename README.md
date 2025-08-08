@@ -1,23 +1,25 @@
-CALYX-PY
+# CALYX-PY
 
-Zero-boilerplate λ-calculus for Python
-Replace Pydantic/FastAPI/LangChain with YAML + pure functions
+## Zero-boilerplate λ-calculus for Python
+** Replace Pydantic/FastAPI/LangChain with YAML + pure functions**
+
+```
 python
 
 from calyx import validate, RuleEngine, fallback
 
-# 1. Validate anything
+#1. Validate anything
 is_valid, errors = validate(data, {"name": "str", "age": "int?"})
 
-# 2. Run YAML rules
+#2. Run YAML rules
 engine = RuleEngine("rules.yaml")
 result = engine.run({"user": "alice", "age": 25})
 
-# 3. Add AI fallback
+#3. Add AI fallback
 @fallback(parse_text, prompt="Extract JSON from: {input}")
 def parse_text(text): ...
-
-Why This Exists
+```
+## Why This Exists
 
     Pydantic → validate() (1 function)
 
