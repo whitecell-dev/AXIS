@@ -28,7 +28,7 @@ def parse_text(text): ...
 
     Mypy → @typecheck() (runtime safety)
 
-### Install bash
+## Install
 ``` bash
 pip install calyx-py
 ```
