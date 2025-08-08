@@ -1,4 +1,6 @@
-## CALYX-PY
+# ***CALYX-PY***
+
+## Structure and Interpretations of Computer Programs in 300 lines
 
 ### *Zero-boilerplate λ-calculus for Python*
 
@@ -75,3 +77,5 @@ Design Principles
 ✔ Ownership over their stack
 
 ***Write the rule in YAML. Solve it in Python. Do effects after.***
+
+Full docs(all 2 pages of them)
