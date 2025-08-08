@@ -13,7 +13,7 @@ from calyx.core import validate, RuleEngine, fallback, typecheck
 pip install calyx-py
 ```
 
-###60-Second Quickstart
+### 60-Second Quickstart
 
 __1) Validate anything__
 ```python
@@ -41,37 +41,37 @@ __3) Add AI fallback (optional)__
 def parse_text(text): ...
 ```
 
-    Need an API?
+Need an API?
 ```python
 engine.serve()  # Instant HTTP server
 ```
 
 ### Why This Exists
 
-    Pydantic → validate() (one function)
+***Pydantic → validate() (one function)***
 
-    FastAPI → RuleEngine().serve() (3 LOC)
+***FastAPI → RuleEngine().serve() (3 LOC)***
 
-    LangChain → @fallback() (decorator)
+***LangChain → @fallback() (decorator)***
 
-    Mypy → @typecheck() (runtime safety)
+***Mypy → @typecheck() (runtime safety)***
 
 Design Principles
 
-    300 LOC — fits in your head
++ 300 LOC — fits in your head
 
-    0 hard deps — PyYAML/requests are optional
++ 0 hard deps — PyYAML/requests are optional
 
-    No magic — just Python + YAML
++ No magic — just Python + YAML
 
-    Pure reducers — no side effects in logic
++ Pure reducers — no side effects in logic
 
-    No eval — safe by default
++ No eval — safe by default
 
-For builders who want
+### For builders who want
 
 ✔ UNIX philosophy
 ✔ Mathematical clarity
 ✔ Ownership over their stack
 
-One-liner: Write the rule in YAML. Solve it in Python. Do effects after.
+***Write the rule in YAML. Solve it in Python. Do effects after.***
