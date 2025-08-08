@@ -1,4 +1,4 @@
-# CALYX-PY
+# ***CALYX-PY***
 ## Zero-boilerplate λ-calculus for Python
 
 *Replace Pydantic/FastAPI/LangChain with YAML + pure functions*
@@ -76,7 +76,7 @@ def parse_resume(text): ...
 
 ***No Magic - Just Python + YAML***
 
-For people who want:
+## For people who want:
 
 ✔ UNIX philosophy
 
