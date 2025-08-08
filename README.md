@@ -6,16 +6,19 @@
 
 ```python
 from calyx.core import validate, RuleEngine, fallback, typecheck
+```
 
 ### Install
 ```bash
 pip install calyx-py
+```
 
 ###60-Second Quickstart
 
 __1) Validate anything__
 ```python
 is_valid, errors = validate(data, {"name": "str", "age": "int?"})
+```
 
 __2) Run YAML rules__
 ```yaml
@@ -24,19 +27,24 @@ __2) Run YAML rules__
   then: {access: "full"}
 - else:
   then: {access: "read"}
+```
+
 ```python
 engine = RuleEngine("rules.yaml")
 result = engine.run({"user": {"role": "admin"}})
 # {"access": "full"}
+```
 
 __3) Add AI fallback (optional)__
 ```python
 @fallback(parse_text, prompt="Extract JSON from: {input}")
 def parse_text(text): ...
+```
 
     Need an API?
 ```python
 engine.serve()  # Instant HTTP server
+```
 
 ### Why This Exists
 
