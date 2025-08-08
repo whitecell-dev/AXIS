@@ -28,41 +28,46 @@ def parse_text(text): ...
 
     Mypy → @typecheck() (runtime safety)
 
-## Install bash
+### Install bash
 ``` bash
 pip install calyx-py
 ```
 
 3 Core Features
 1. Validation
-python
+```python
 
 Schema can be dict or YAML path
+
 is_valid, errors = validate(user_data, "schema.yaml")
+```
 
 2. Rule Engine
-yaml
+```yaml
 
 rules.yaml
 - if: "user.role == 'admin'"
   then: {access: "full"}
 - else:
   then: {access: "read"}
+```
 
-python
+```python
 
 engine = RuleEngine("rules.yaml")
 engine.serve()  # Instant API
+```
 
 3. AI Fallback
-python
+```python
 
 @fallback(
     parse_resume, 
     prompt="Extract JSON from this resume: {input}"
 )
-def parse_resume(text): ...
 
+def parse_resume(text): ...
+```
 Design Principles
 
 300 LOC - Fits in your head
