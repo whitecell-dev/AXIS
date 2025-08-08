@@ -68,13 +68,13 @@ engine.serve()  # Instant API
 
 def parse_resume(text): ...
 ```
-Design Principles
+## Design Principles
 
-300 LOC - Fits in your head
+***300 LOC - Fits in your head***
 
-0 Dependencies - PyYAML/requests optional
+***0 Dependencies - PyYAML/requests optional***
 
-No Magic - Just Python + YAML
+***No Magic - Just Python + YAML***
 
 For people who want:
 
