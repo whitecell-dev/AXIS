@@ -15,7 +15,7 @@ from calyx.core import validate, RuleEngine, fallback, typecheck
 pip install calyx-py
 ```
 
-###60-Second Quickstart
+### 60-Second Quickstart
 
 __1) Validate anything__
 ```python
