@@ -17,7 +17,7 @@ Backend developers forgot this lesson. We jammed everything into imperative code
 - Intent obscured by implementation
 
 **CALYX rediscovered the separation:**
-- **YAML** = Intent (what should happen)
+- **YAML** = Intent (human-readable λ-terms)
 - **Python** = Execution (how to make it happen)
 - **LLM** = Fallback (when rules aren't enough)
 
@@ -48,6 +48,36 @@ def approve_loan(data):
 engine = RuleEngine("rules.yaml")
 result = engine.run(request_data)
 ```
+---
+
+Why This Works (λ-calculus, plain English)
+
+CALYX rules are just pure functions written for humans.
+
+    YAML rule = λ-function over your input:
+
+    - if: "credit_score > 700 and income > 50000 and debt_ratio < 0.4"
+      then: {approved: true}
+    - else:
+      then: {approved: false}
+
+        Read as: λinput. if condition(input) then {approved: true} else {approved: false}
+
+    Reducer = β-reduction. It substitutes real input into that expression and normalizes it to a plain data result. No side effects, no hidden state.
+
+    Adapters = effects (after). Once you have a result, then do I/O (DB writes, emails). Never during reduction.
+
+Why it matters:
+
+    Predictable (same input → same output)
+
+    Composable (rules remain independent)
+
+    Portable (runs on Python today, WASM/GPU tomorrow)
+
+    Explainable (you can trace every decision in YAML)
+
+Ten-second test: If a rule isn’t a pure function of its input, it doesn’t belong in YAML.
 
 ## The Constitutional Principles
 
