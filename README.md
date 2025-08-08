@@ -33,7 +33,7 @@ def parse_text(text): ...
 pip install calyx-py
 ```
 
-3 Core Features
+## 3 Core Features
 1. Validation
 ```python
 
