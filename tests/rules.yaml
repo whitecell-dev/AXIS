@@ -1,4 +1,4 @@
-# Example CALYX rules
+# Example AXIS rules
 schema:
   age: int
   score: float

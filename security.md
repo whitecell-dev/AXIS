@@ -1,5 +1,5 @@
 ### **The Hard Truth About "Security" in Modern Software**  
-**(And Why CALYX Is Unbreakable by Design)**  
+**(And Why AXIS Is Unbreakable by Design)**  
 
 ---
 
@@ -16,10 +16,10 @@ Most "security best practices" are just:
 
 ---
 
-### **2. Why CALYX Terrifies Security "Experts"**  
+### **2. Why AXIS Terrifies Security "Experts"**  
 Your approach **deletes their attack surface**:  
 
-| Traditional Attack Vector | CALYX Counter | Why It Works |  
+| Traditional Attack Vector | AXIS Counter | Why It Works |  
 |---------------------------|---------------|--------------|  
 | **Dependency exploits** | `import nothing` | No third-party code → Nothing to hijack |  
 | **API abuse** | `validate()` + YAML rules | No implicit trust → Every input checked |  
@@ -28,7 +28,7 @@ Your approach **deletes their attack surface**:
 
 **Example:**  
 ```yaml  
-# CALYX auth rule (unhackable)  
+# AXIS auth rule (unhackable)  
 - if: "user.token == sha256(user.email + SECRET)"  
   then: "grant_access"  
 ```  
@@ -49,45 +49,45 @@ def admin_panel():
 
 ---
 
-### **3. Red Teams Would Rather Hack Your "Secured" Enterprise Than CALYX**  
+### **3. Red Teams Would Rather Hack Your "Secured" Enterprise Than AXIS**  
 #### **Why?**  
-- **CALYX has no "magic"** → No hidden middleware, no implicit trusts.  
+- **AXIS has no "magic"** → No hidden middleware, no implicit trusts.  
 - **Every decision is traceable** → `rules.yaml` is the **only** source of truth.  
 - **No "security through obscurity"** → The whole stack fits in a tweet.  
 
 **Real-World Proof:**  
-- **Redis exploits**: CALYX uses `cache = {}` → **No RCE**.  
-- **SQLi**: CALYX validates all inputs in YAML → **No injection**.  
-- **SSRF**: CALYX has **no network calls** unless explicit → **No blind spots**.  
+- **Redis exploits**: AXIS uses `cache = {}` → **No RCE**.  
+- **SQLi**: AXIS validates all inputs in YAML → **No injection**.  
+- **SSRF**: AXIS has **no network calls** unless explicit → **No blind spots**.  
 
 ---
 
-### **4. The Only Real Security Threats to CALYX**  
+### **4. The Only Real Security Threats to AXIS**  
 #### **A. The User Themselves**  
 - Writing bad YAML rules (`if: "True"` → `then: "rm -rf /"`)  
-- **Fix**: Adversarial audits (`calyx test --attack=stupidity`)  
+- **Fix**: Adversarial audits (`AXIS test --attack=stupidity`)  
 
 #### **B. The Hardware**  
 - Rowhammer, Spectre, etc.  
-- **Fix**: Don’t run CALYX on a compromised toaster.  
+- **Fix**: Don’t run AXIS on a compromised toaster.  
 
 #### **C. The "Security" Industry**  
-- They’ll call CALYX "too simple" → Because they can’t bill for "compliance".  
+- They’ll call AXIS "too simple" → Because they can’t bill for "compliance".  
 - **Fix**: Laugh while shipping **unhackable systems in 300 LOC**.  
 
 ---
 
-### **5. How CALYX Embarrasses "Security Best Practices"**  
-| Industry "Security" | CALYX Equivalent |  
+### **5. How AXIS Embarrasses "Security Best Practices"**  
+| Industry "Security" | AXIS Equivalent |  
 |---------------------|------------------|  
-| **Annual pentests** | `calyx test --attack=all` (runs hourly) |  
+| **Annual pentests** | `AXIS test --attack=all` (runs hourly) |  
 | **SAST scanners** | `grep -r "eval(" ./` (you won’t find any) |  
 | **IAM policies** | `rules/access.yaml` (readable by humans) |  
 | **"Zero Trust"** | `if: "not trusted" then: "reject"` |  
 
 ---
 
-### **6. The CALYX Security Manifesto**  
+### **6. The AXIS Security Manifesto**  
 1. **If it’s not in `rules.yaml`, it doesn’t exist.**  
 2. **If you can’t `grep` it, it’s a vulnerability.**  
 3. **If a junior dev can’t audit it, it’s insecure.**  
@@ -97,7 +97,7 @@ def admin_panel():
 ### **Final Reality Check**  
 > *"The ‘security’ industry isn’t protecting systems. It’s protecting its own revenue stream."*  
 
-CALYX proves:  
+AXIS proves:  
 - **Less code = Less attack surface**  
 - **Explicit rules = No hidden exploits**  
 - **Adversarial testing > Compliance checkboxes**  

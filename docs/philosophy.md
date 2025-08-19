@@ -10,7 +10,7 @@
 Most frameworks get this backwards. They think:
 > *"Let's add features until it's powerful enough"*
 
-CALYX-PY thinks:
+AXIS-PY thinks:
 > *"Let's remove features until it's simple enough"*
 
 ---
@@ -31,7 +31,7 @@ Framework Size → Debugging Difficulty
 - **300 lines:** 15 possible interactions
 - **10,000 lines:** 5,000 possible interactions
 
-**CALYX-PY chooses 15 over 5,000.**
+**AXIS-PY chooses 15 over 5,000.**
 
 ---
 
@@ -50,7 +50,7 @@ You can hold ~7 concepts in working memory. Modern frameworks demand 70.
 - Migration version conflicts
 - Router mounting strategies
 
-**CALYX-PY requires you to remember:**
+**AXIS-PY requires you to remember:**
 - YAML syntax
 - `validate()`, `serve()`, `@fallback()`
 - That's it.
@@ -61,14 +61,14 @@ You can hold ~7 concepts in working memory. Modern frameworks demand 70.
 
 ### **"Do One Thing Well" vs "Do Everything Poorly"**
 
-| Framework Approach | CALYX-PY Approach |
+| Framework Approach | AXIS-PY Approach |
 |-------------------|-------------------|
 | One tool, 50 features | 5 tools, 1 feature each |
 | Complex interactions | Simple composition |
 | Framework lock-in | Portable logic |
 | Magic everywhere | Explicit everything |
 
-**CALYX-PY is grep, not Microsoft Word.**
+**AXIS-PY is grep, not Microsoft Word.**
 
 ---
 
@@ -76,7 +76,7 @@ You can hold ~7 concepts in working memory. Modern frameworks demand 70.
 
 ### **300 Lines = Complete Mental Model**
 
-When something breaks in CALYX-PY:
+When something breaks in AXIS-PY:
 1. Read the 300 lines (5 minutes)
 2. Find the bug (obvious)
 3. Fix it (minutes)
@@ -105,10 +105,10 @@ async def process(request: ProcessRequest) -> ProcessResponse:
     # Your logic buried in framework ceremony
     pass
 
-# CALYX Way (Loosely Coupled)  
-calyx validate data.json schema.yaml
-calyx execute rules.yaml --input=data.json
-calyx audit --last
+# AXIS Way (Loosely Coupled)  
+AXIS validate data.json schema.yaml
+AXIS execute rules.yaml --input=data.json
+AXIS audit --last
 ```
 
 **You can replace any piece without rewriting everything.**
@@ -164,7 +164,7 @@ This seems backwards, but it's true:
 **Framework explanation:**
 > *"Well, first you need to understand dependency injection, then decorators, then async context managers, then the metaclass system that powers the ORM, then..."*
 
-**CALYX-PY explanation:**
+**AXIS-PY explanation:**
 > *"Write your logic in YAML. Call `validate()` for data, `serve()` for APIs, `@fallback()` for AI. That's it."*
 
 **If you can't explain it simply, you don't understand it.**
@@ -173,7 +173,7 @@ This seems backwards, but it's true:
 
 ## **THE TRADE-OFF MATRIX**
 
-### **What CALYX-PY Gives Up (And Why It's Worth It)**
+### **What AXIS-PY Gives Up (And Why It's Worth It)**
 
 | We Give Up | We Get Back | Net Gain |
 |------------|-------------|----------|
@@ -202,11 +202,11 @@ This seems backwards, but it's true:
 - Sell enterprise licenses
 - Make simple things seem hard
 
-**CALYX-PY refuses to perform complexity theater.**
+**AXIS-PY refuses to perform complexity theater.**
 
 ---
 
-## **THE CALYX-PY MANIFESTO**
+## **THE AXIS-PY MANIFESTO**
 
 ### **We Believe:**
 
@@ -236,7 +236,7 @@ Because every line of code after 300 is:
 - **Risk** (more attack surface)
 - **Drag** (slower development)
 
-**CALYX-PY is what happens when you stop adding and start subtracting.**
+**AXIS-PY is what happens when you stop adding and start subtracting.**
 
 ---
 

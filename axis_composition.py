@@ -1,4 +1,4 @@
-# calyx_composition.py
+# AXIS_composition.py
 """Rule composition and modular YAML management"""
 import yaml
 from pathlib import Path

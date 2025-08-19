@@ -2,7 +2,7 @@
 """Complete example showing all integrations"""
 
 def create_complete_example():
-    """Create a complete example app using all CALYX features"""
+    """Create a complete example app using all AXIS features"""
     
     # 1. Create example rules with composition
     base_rules = """
@@ -50,14 +50,14 @@ rules:
     # 2. Example Flask app
     flask_app = """
 from flask import Flask, request, jsonify
-from calyx_flask import with_calyx_rules
-from calyx_adapters.database import SQLiteAdapter
+from AXIS_flask import with_AXIS_rules
+from AXIS_adapters.database import SQLiteAdapter
 
 app = Flask(__name__)
 db = SQLiteAdapter('users.db')
 
 @app.route('/users', methods=['POST'])
-@with_calyx_rules('user_management.yaml')
+@with_AXIS_rules('user_management.yaml')
 def create_user(validated_data):
     if validated_data.get('errors'):
         return jsonify({'errors': validated_data['errors']}), 400
@@ -72,7 +72,7 @@ def create_user(validated_data):
     
     # 4. Golden vector test
     golden_test = """
-from calyx_testing.golden_vectors import GoldenVectorGenerator
+from AXIS_testing.golden_vectors import GoldenVectorGenerator
 
 # Generate test vectors
 generator = GoldenVectorGenerator('user_management.yaml')

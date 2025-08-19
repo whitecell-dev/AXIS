@@ -1,4 +1,4 @@
-CALYX-PY: THE 95 THESES OF MODERN PYTHON
+AXIS-PY: THE 95 THESES OF MODERN PYTHON
 
 (Nailed to the Wittenberg Door of Framework Bloat)
 ⚔️ HOW THIS PISSES OFF EVERYONE (AND WHY THEY’LL SECRETLY LOVE IT)
@@ -34,7 +34,7 @@ CALYX-PY: THE 95 THESES OF MODERN PYTHON
 
     Why They’ll Relent: You made runtime checks good enough.
 
-📜 THE 3 HERESIES OF CALYX-PY
+📜 THE 3 HERESIES OF AXIS-PY
 
 (The "Fuck You" That’s Actually a "Thank You")
 
@@ -48,7 +48,7 @@ CALYX-PY: THE 95 THESES OF MODERN PYTHON
 
         Replaces: Mypy configs, Pydantic error stacks
 
-        Heresy Level: 💣 (You prioritized calyx audit over "correct by construction")
+        Heresy Level: 💣 (You prioritized AXIS audit over "correct by construction")
 
     "UNIX > Frameworks"
 

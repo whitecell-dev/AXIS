@@ -1,9 +1,9 @@
-# calyx_react.py  
-"""React hooks generator for CALYX rules"""
+# AXIS_react.py  
+"""React hooks generator for AXIS rules"""
 import json
 
 def generate_react_hook(yaml_path: str, hook_name: str = None) -> str:
-    """Generate a React hook that uses CALYX rules"""
+    """Generate a React hook that uses AXIS rules"""
     
     engine = RuleEngine(yaml_path)
     component_name = engine.component_name
@@ -15,16 +15,16 @@ def generate_react_hook(yaml_path: str, hook_name: str = None) -> str:
     hook_code = f"""
 import {{ useState, useCallback, useMemo }} from 'react';
 
-// Generated CALYX React Hook for {component_name}
+// Generated AXIS React Hook for {component_name}
 export function {hook_name}(initialState = {{}}) {{
   const [state, setState] = useState(initialState);
   
-  // CALYX rules (would be loaded from server or bundled)
+  // AXIS rules (would be loaded from server or bundled)
   const rules = {json.dumps(engine.rules, indent=2)};
   
-  // Apply CALYX rules client-side
+  // Apply AXIS rules client-side
   const applyRules = useCallback((inputData, action = {{ type: 'RULE_CHECK' }}) => {{
-    // This would call the actual CALYX engine
+    // This would call the actual AXIS engine
     // For now, simplified client-side version
     const newState = {{ ...inputData }};
     

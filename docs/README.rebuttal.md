@@ -1,4 +1,4 @@
-### **CALYX-PY: Where It Fails (And Why It's Still Revolutionary)**
+### **AXIS-PY: Where It Fails (And Why It's Still Revolutionary)**
 
 Let's tear this apart like a proper engineer - with equal parts skepticism and respect for what *actually ships*.
 
@@ -36,7 +36,7 @@ Let's tear this apart like a proper engineer - with equal parts skepticism and r
 **Fails:** "Expected str got int" vs Pydantic's novel-length explanations  
 **Why It's OK:**  
 - Debuggability > prettiness  
-- `CALYX_DEBUG=1` gives raw truth  
+- `AXIS_DEBUG=1` gives raw truth  
 
 ---
 
@@ -58,13 +58,13 @@ It handles:
 ```python
 # Compare:
 FastAPI error: "DependencyResolutionError in Starlette middleware..."
-CALYX error: "Rule 3 failed: 'age' was None"
+AXIS error: "Rule 3 failed: 'age' was None"
 ```
 
 ### **3. Escape Hatch Always Available**
 ```python
 # When you hit limits:
-from calyx import RuleEngine
+from AXIS import RuleEngine
 engine = RuleEngine("rules.yaml")
 
 # Hack the engine directly:
@@ -73,7 +73,7 @@ engine.rule_list.append({"if": "emergency", "then": {"call": "911"}})
 
 ### **4. The UNIX Philosophy Lives**
 ```bash
-cat data.json | calyx run rules.yaml > output.json
+cat data.json | AXIS run rules.yaml > output.json
 ```
 No frameworks. No ORMs. Just data in, logic applied, data out.
 

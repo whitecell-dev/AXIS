@@ -1,5 +1,5 @@
-# calyx_adapters/database.py
-"""Database adapter patterns for CALYX"""
+# AXIS_adapters/database.py
+"""Database adapter patterns for AXIS"""
 import json
 from typing import Dict, Any, Optional, List
 from abc import ABC, abstractmethod

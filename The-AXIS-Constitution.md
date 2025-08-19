@@ -1,4 +1,4 @@
-# The CALYX Constitution
+# The AXIS Constitution
 *The atomic insight that must never be lost*
 
 ## The Discovery
@@ -16,7 +16,7 @@ Backend developers forgot this lesson. We jammed everything into imperative code
 - Truth scattered across frameworks
 - Intent obscured by implementation
 
-**CALYX rediscovered the separation:**
+**AXIS rediscovered the separation:**
 - **YAML** = Intent (human-readable λ-terms)
 - **Python** = Execution (how to make it happen)
 - **LLM** = Fallback (when rules aren't enough)
@@ -52,7 +52,7 @@ result = engine.run(request_data)
 
 Why This Works (λ-calculus, plain English)
 
-CALYX rules are just pure functions written for humans.
+AXIS rules are just pure functions written for humans.
 
     YAML rule = λ-function over your input:
 
@@ -108,7 +108,7 @@ Ten-second test: If a rule isn’t a pure function of its input, it doesn’t be
 
 ## The Complexity Budget
 
-To preserve the atomic insight, CALYX must never exceed:
+To preserve the atomic insight, AXIS must never exceed:
 
 - **300 lines** per Python file
 - **50 rules** per YAML file  
@@ -130,7 +130,7 @@ If any answer is no, simplify or split.
 
 ## The Warning
 
-The forces that created bloated frameworks will try to recreate them in CALYX:
+The forces that created bloated frameworks will try to recreate them in AXIS:
 - "Let's add a plugin system"
 - "We need more advanced templating"
 - "This needs better abstractions"
@@ -143,7 +143,7 @@ The magic is that there is no magic.
 
 ## The Mission
 
-CALYX exists to prove that:
+AXIS exists to prove that:
 - **Declarative intent** can drive imperative execution
 - **Simple tools** can solve complex problems
 - **Human-readable logic** can power critical systems

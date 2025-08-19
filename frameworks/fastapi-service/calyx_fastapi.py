@@ -1,12 +1,12 @@
-# calyx_fastapi.py
-"""FastAPI integration for CALYX rules"""
+# AXIS_fastapi.py
+"""FastAPI integration for AXIS rules"""
 from fastapi import FastAPI, HTTPException, Depends
 from pydantic import BaseModel
-from calyx import RuleEngine
+from AXIS import RuleEngine
 from typing import Dict, Any
 import json
 
-class CalyxMiddleware:
+class AXISMiddleware:
     def __init__(self, yaml_path: str):
         self.engine = RuleEngine(yaml_path)
     
@@ -16,20 +16,20 @@ class CalyxMiddleware:
             raise HTTPException(status_code=400, detail=result['errors'])
         return result
 
-def create_calyx_dependency(yaml_path: str):
-    """Create a FastAPI dependency for CALYX rule validation"""
-    middleware = CalyxMiddleware(yaml_path)
+def create_AXIS_dependency(yaml_path: str):
+    """Create a FastAPI dependency for AXIS rule validation"""
+    middleware = AXISMiddleware(yaml_path)
     
-    def calyx_validator(data: dict) -> dict:
+    def AXIS_validator(data: dict) -> dict:
         return middleware.validate(data)
     
-    return calyx_validator
+    return AXIS_validator
 
 # Example FastAPI usage:
 """
-from calyx_fastapi import create_calyx_dependency
+from AXIS_fastapi import create_AXIS_dependency
 
-user_validator = create_calyx_dependency('user_rules.yaml')
+user_validator = create_AXIS_dependency('user_rules.yaml')
 
 @app.post("/users")
 async def create_user(user_data: dict, validated: dict = Depends(user_validator)):

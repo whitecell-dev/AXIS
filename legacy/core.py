@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CALYX-PY: Zero-boilerplate Python reasoning library
+AXIS-PY: Zero-boilerplate Python reasoning library
 Replaces Pydantic, FastAPI, LangChain, and Mypy with YAML + rules + optional AI
 """
 
@@ -144,7 +144,7 @@ def fallback(fn: Callable, llm: str = "gpt-4", prompt: str = "Fix this: {input}"
                 return result
         except Exception as e:
             # Log the error if debug mode
-            if os.getenv('CALYX_DEBUG'):
+            if os.getenv('AXIS_DEBUG'):
                 print(f"Function {fn.__name__} failed: {e}", file=sys.stderr)
         
         # Fallback to LLM
@@ -244,7 +244,7 @@ class RuleEngine:
             # Evaluate the condition
             return eval(condition, {"__builtins__": {}}, safe_context)
         except Exception as e:
-            if os.getenv('CALYX_DEBUG'):
+            if os.getenv('AXIS_DEBUG'):
                 print(f"Condition evaluation failed: {condition} - {e}", file=sys.stderr)
             return False
     
@@ -308,16 +308,16 @@ class RuleEngine:
                 self.send_response(200)
                 self.send_header('Content-Type', 'text/plain')
                 self.end_headers()
-                self.wfile.write(b'CALYX Rule Engine Running\n')
+                self.wfile.write(b'AXIS Rule Engine Running\n')
             
             def log_message(self, format, *args):
                 # Suppress default logging unless debug mode
-                if os.getenv('CALYX_DEBUG'):
+                if os.getenv('AXIS_DEBUG'):
                     super().log_message(format, *args)
         
         # Start server
         server = HTTPServer((host, port), RuleHandler)
-        print(f"CALYX Rule Engine serving at http://{host}:{port}")
+        print(f"AXIS Rule Engine serving at http://{host}:{port}")
         print("POST JSON to / to execute rules")
         print("Press Ctrl+C to stop")
         

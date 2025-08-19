@@ -1,5 +1,5 @@
-# calyx_adapters/http.py
-"""HTTP adapter patterns for CALYX"""
+# AXIS_adapters/http.py
+"""HTTP adapter patterns for AXIS"""
 import json
 from typing import Dict, Any, Optional
 import urllib.request
@@ -13,7 +13,7 @@ class HTTPAdapter:
         self.base_url = base_url.rstrip('/')
         self.default_headers = default_headers or {
             'Content-Type': 'application/json',
-            'User-Agent': 'CALYX-HTTPAdapter/1.0'
+            'User-Agent': 'AXIS-HTTPAdapter/1.0'
         }
     
     def get(self, endpoint: str, params: Dict[str, Any] = None) -> Dict[str, Any]:

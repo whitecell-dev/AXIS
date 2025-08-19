@@ -1,4 +1,4 @@
-# ***CALYX-PY***
+# ***AXIS-PY***
 
 ## Structure and Interpretations of Computer Programs in 300 lines
 
@@ -7,12 +7,12 @@
 ***Replace Pydantic / FastAPI / LangChain with YAML + pure functions.***
 
 ```python
-from calyx.core import validate, RuleEngine, fallback, typecheck
+from AXIS.core import validate, RuleEngine, fallback, typecheck
 ```
 
 ### Install
 ```bash
-pip install calyx-py
+pip install AXIS-py
 ```
 
 ### 60-Second Quickstart

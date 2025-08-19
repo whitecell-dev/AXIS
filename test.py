@@ -1,4 +1,4 @@
-from calyx.core import typecheck
+from AXIS.core import typecheck
 
 @typecheck({"x": "int", "y": "int"})
 def multiply(data):

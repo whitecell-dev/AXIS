@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 """
-CALYX: React for Deterministic Reasoning
+AXIS: React for Deterministic Reasoning
 Zero-boilerplate Python library for hash-verified, cross-platform logic
 
 Pipeline: YAML → AST → Pure Reducer → Cryptographic Audit
@@ -212,7 +212,7 @@ def apply_rules(rules: List[dict], state: dict, action: dict) -> dict:
                 condition_ast = parse_condition_to_ast(rule['if'])
                 should_apply = evaluate_ast(condition_ast, context)
             except Exception as e:
-                if os.getenv('CALYX_DEBUG'):
+                if os.getenv('AXIS_DEBUG'):
                     print(f"Rule {i} condition failed: {e}", file=sys.stderr)
                 should_apply = False
         
@@ -300,7 +300,7 @@ class RuleEngine:
         canonical_rules = canonicalize({
             'component': self.component_name,
             'rules': self.rules,
-            'compiler_version': 'calyx-atomic@1.0.0'
+            'compiler_version': 'AXIS-atomic@1.0.0'
         })
         ir_json = json.dumps(canonical_rules, sort_keys=True, separators=(',', ':'))
         return sha3_256_hex(ir_json)
@@ -438,10 +438,10 @@ def typecheck(schema: dict):
 # ============================================================================
 
 def cli():
-    """Simple CLI for running CALYX rules"""
+    """Simple CLI for running AXIS rules"""
     import argparse
     
-    parser = argparse.ArgumentParser(description="CALYX: React for Deterministic Reasoning")
+    parser = argparse.ArgumentParser(description="AXIS: React for Deterministic Reasoning")
     parser.add_argument("command", choices=['run', 'validate', 'hash'], help="Command to execute")
     parser.add_argument("rules", help="Path to YAML rules file")
     parser.add_argument("input", nargs='?', help="JSON input as string or @file.json")
@@ -499,7 +499,7 @@ def extended_cli():
     import argparse
     import sys
     
-    parser = argparse.ArgumentParser(description="CALYX Complete Ecosystem")
+    parser = argparse.ArgumentParser(description="AXIS Complete Ecosystem")
     subparsers = parser.add_subparsers(dest='command', help='Commands')
     
     # Original commands
@@ -582,7 +582,7 @@ if __name__ == "__main__":
 
     else:
         # Demo mode
-        print("CALYX: React for Deterministic Reasoning\n")
+        print("AXIS: React for Deterministic Reasoning\n")
         
         # Example 1: Simple validation
         print("1. Validation Example:")
@@ -609,8 +609,8 @@ if __name__ == "__main__":
         print(f"   IR Hash: {result['_audit']['ir_hash'][:16]}...")
         
         print(f"\n3. Available CLI commands:")
-        print(f"   calyx run rules.yaml '{{\"age\": 17}}'")
-        print(f"   calyx validate rules.yaml")
-        print(f"   calyx hash rules.yaml")
+        print(f"   AXIS run rules.yaml '{{\"age\": 17}}'")
+        print(f"   AXIS validate rules.yaml")
+        print(f"   AXIS hash rules.yaml")
         
         print(f"\nReact for Deterministic Reasoning is ready! ")

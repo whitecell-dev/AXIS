@@ -1,4 +1,4 @@
-from calyx.core import fallback
+from AXIS.core import fallback
 
 @fallback
 def risky_fn(data):

@@ -1,5 +1,5 @@
-# calyx_adapters/files.py
-"""File I/O adapter patterns for CALYX"""
+# AXIS_adapters/files.py
+"""File I/O adapter patterns for AXIS"""
 import json
 import os
 from typing import Dict, Any, List

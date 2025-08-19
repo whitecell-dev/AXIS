@@ -1,4 +1,4 @@
-from calyx.core import validate
+from AXIS.core import validate
 
 data = {"name": "Alice", "age": "25", "email": "alice@example.com"}
 schema = {"name": "str", "age": "int", "email": "str?"}

@@ -1,12 +1,12 @@
-# calyx_testing/golden_vectors.py
+# AXIS_testing/golden_vectors.py
 """Golden vector testing for cross-platform verification"""
 import json
 from typing import List, Dict, Any
-from calyx import RuleEngine
+from AXIS import RuleEngine
 import hashlib
 
 class GoldenVectorGenerator:
-    """Generate test vectors for CALYX rules"""
+    """Generate test vectors for AXIS rules"""
     
     def __init__(self, rules_path: str):
         self.engine = RuleEngine(rules_path)

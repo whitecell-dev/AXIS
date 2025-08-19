@@ -8,7 +8,7 @@ NeetCode exists because:
 2. Companies are too lazy to evaluate real work  
 3. The system rewards **pattern recognition** over problem solving
 
-**Here's how to break it with CALYX principles.**
+**Here's how to break it with AXIS principles.**
 
 ---
 
@@ -324,7 +324,7 @@ class Trie:
 - How you **structure** solutions
 - How you **communicate** technical decisions
 
-**CALYX gives you all three** without the 6-month grind.
+**AXIS gives you all three** without the 6-month grind.
 
 ---
 
