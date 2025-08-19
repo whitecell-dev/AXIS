@@ -1,7 +1,10 @@
-# AXIS_adapters/database.py
-"""Database adapter patterns for AXIS"""
-import json
-from typing import Dict, Any, Optional, List
+#!/usr/bin/env python3
+"""
+Database adapter - controlled I/O boundary
+Simple SQLite implementation for CRUD operations
+"""
+
+from typing import Dict, Any, List, Optional
 from abc import ABC, abstractmethod
 
 class DatabaseAdapter(ABC):
@@ -20,7 +23,7 @@ class DatabaseAdapter(ABC):
         pass
 
 class SQLiteAdapter(DatabaseAdapter):
-    """SQLite adapter implementation"""
+    """SQLite adapter for simple file-based storage"""
     
     def __init__(self, db_path: str):
         import sqlite3
@@ -38,7 +41,7 @@ class SQLiteAdapter(DatabaseAdapter):
         self.conn.commit()
         return cursor.lastrowid
     
-    def find(self, table: str, query: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def find(self, table: str, query: Dict[str, Any] = None) -> List[Dict[str, Any]]:
         """Find records matching query"""
         if not query:
             sql = f"SELECT * FROM {table}"
@@ -62,3 +65,7 @@ class SQLiteAdapter(DatabaseAdapter):
         cursor = self.conn.execute(sql, params)
         self.conn.commit()
         return cursor.rowcount > 0
+    
+    def close(self):
+        """Close database connection"""
+        self.conn.close()

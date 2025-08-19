@@ -4,38 +4,53 @@
 
 > *"We split the atom of software complexity and found that simplicity was the most powerful force inside."*
 
-AXIS is a zero-boilerplate Python library that brings React's functional programming paradigm to any deterministic system. Write business logic once in human-readable YAML, execute it everywhere with cryptographic verification.
+Just like React revolutionized frontend development with `UI = f(state)`, AXIS revolutionizes backend logic with `Logic = f(rules, state)`.
 
-## **Core Insight**
+**Write business logic once in human-readable YAML. Execute with cryptographic verification.**
 
-Just like React separated UI concerns (`HTML + CSS + JavaScript`), AXIS separates system logic:
+## **The Core Insight**
 
-- **YAML** = Intent (human-readable λ-terms)
-- **Reducers** = Pure Logic (deterministic state transitions)  
-- **Adapters** = Side Effects (controlled I/O operations)
+Just like React separated UI concerns, AXIS separates system logic:
+
+| React (Frontend) | AXIS (Backend) |
+|------------------|----------------|
+| `UI = f(state)` | `Logic = f(rules, state)` |
+| Virtual DOM | Secure AST |
+| Components | Rules |
+| JSX | YAML |
+| Pure Functions | Pure Reducers |
+| Props → Render | Input → Transform |
+
+## **Built for the Age of AI**
+
+AXIS is **LLM-proof infrastructure**:
+- **✅ LLMs generate YAML rules** (safe, human-verifiable)
+- **✅ Adapters handle I/O** (controlled boundaries)  
+- **✅ Math handles verification** (hash-based proof of correctness)
+
+No more *"here's 500 lines of Python, good luck!"* Just:
+
+```yaml
+# user_rules.yaml - LLM can generate this safely
+component: UserAccess
+rules:
+  - if: "age >= 18"
+    then: { status: "adult", can_vote: true }
+  - if: "role == 'admin'"
+    then: { permissions: ["read", "write", "admin"] }
+  - if: "not email"
+    then: { errors+: ["Email required"] }
+```
 
 ## **Quick Start**
 
 ### Installation
 ```bash
 pip install axis-py
-# or: pip install pyyaml  # for YAML support
+# Optional: pip install "axis-py[yaml]" for YAML support
 ```
 
 ### Your First Rules
-```yaml
-# user_rules.yaml
-component: UserValidation
-rules:
-  - if: "age >= 18"
-    then: { status: "adult", can_vote: true }
-  - if: "not email"
-    then: { errors+: ["Email required"] }
-  - if: "role == 'admin'"
-    then: { permissions: ["read", "write", "admin"] }
-```
-
-### Run Anywhere
 ```python
 from axis import RuleEngine
 
@@ -56,33 +71,44 @@ print(result)
 # }
 ```
 
-##  **Why AXIS?**
+## **Why AXIS?**
 
-### ** Cryptographically Verified**
-Every execution includes a hash-based audit trail. Same input + same rules = mathematically guaranteed identical output across all platforms.
+### **🔒 Cryptographically Verified**
+Every execution includes a hash-based audit trail. Same input + same rules = mathematically guaranteed identical output.
 
-### ** Universal Portability** 
-Write logic once, run everywhere:
-- Python (development)
-- JavaScript (frontend)  
-- WebAssembly (browsers)
-- Native code (embedded systems)
-
-### ** Human-Readable Logic**
-Non-programmers can read, edit, and approve business rules written in YAML.
-
-### ** Zero-Trust Verification**
-```bash
-axis test user_rules.yaml test_vectors.json
-#  Tests: 10, Passed: 10, Failed: 0
-# All platforms produce identical results
+```python
+result = engine.run(user_data)
+# Always includes cryptographic proof:
+# - IR hash (rules fingerprint)
+# - Input hash (data fingerprint)  
+# - Output hash (result fingerprint)
 ```
 
-##  **Framework Integrations**
+### **🛡️ LLM-Safe by Design**
+```yaml
+# ✅ LLM can generate this (safe YAML rules)
+- if: "user.subscription == 'premium'"
+  then: { discount: 0.2, features: ["unlimited"] }
+
+# ❌ LLM CANNOT do this (I/O is isolated in adapters)
+# db.execute("DROP TABLE users")  # Impossible!
+```
+
+### **🧠 Human-Readable Logic**
+Non-programmers can read, edit, and approve business rules written in YAML.
+
+### **🔄 Pure Functions Everywhere**
+React-inspired reducer pattern ensures predictable, testable logic:
+```python
+# Always returns new state, never mutates input
+new_state = apply_rules(rules, old_state, action)
+```
+
+## **Framework Integrations**
 
 ### Flask
 ```python
-from axis_flask import with_axis_rules
+from axis.integrations.flask import with_axis_rules
 
 @app.route('/users', methods=['POST'])
 @with_axis_rules('user_validation.yaml')
@@ -94,7 +120,7 @@ def create_user(validated_data):
 
 ### FastAPI
 ```python
-from axis_fastapi import create_axis_dependency
+from axis.integrations.fastapi import create_axis_dependency
 
 user_validator = create_axis_dependency('user_rules.yaml')
 
@@ -103,30 +129,12 @@ async def create_user(data: dict, validated: dict = Depends(user_validator)):
     return {"user": validated, "status": "created"}
 ```
 
-### React (Auto-Generated Hooks)
-```bash
-axis generate react user_rules.yaml --output useUserRules.ts
-```
-```typescript
-import { useUserRules } from './useUserRules';
-
-function UserForm() {
-  const { state, updateState, errors } = useUserRules();
-  
-  const handleSubmit = (userData) => {
-    const result = updateState(userData);
-    // Same validation logic as backend!
-  };
-}
-```
-
-## 🔌 **Adapter System**
+## **Controlled I/O Boundaries**
 
 Keep side effects isolated and testable:
 
 ```python
-from axis_adapters.database import SQLiteAdapter
-from axis_adapters.http import HTTPAdapter
+from axis.adapters import SQLiteAdapter, HTTPAdapter
 
 # Database operations
 db = SQLiteAdapter('users.db')
@@ -137,7 +145,7 @@ api = HTTPAdapter('https://api.example.com')
 response = api.post('notifications', {'user_id': user_id})
 ```
 
-##  **Rule Composition**
+## **Rule Composition**
 
 Build complex logic from simple, reusable modules:
 
@@ -158,12 +166,12 @@ rules:
 axis compose main.yaml --output composed_rules.yaml
 ```
 
-##  **Golden Vector Testing**
+## **Golden Vector Testing**
 
-Verify your rules work identically across all platforms:
+Verify your rules work consistently:
 
 ```python
-from axis_testing import GoldenVectorGenerator
+from axis.testing import GoldenVectorGenerator
 
 # Generate test cases
 generator = GoldenVectorGenerator('user_rules.yaml')
@@ -176,10 +184,10 @@ generator.save_vectors('test_vectors.json')
 
 ```bash
 axis test user_rules.yaml test_vectors.json
-# Verifies Python, JavaScript, WASM all produce identical results
+# ✓ Tests: 10, Passed: 10, Failed: 0
 ```
 
-##  **CLI Reference**
+## **CLI Reference**
 
 ```bash
 # Run rules with input data
@@ -196,51 +204,49 @@ axis compose main.yaml --output final_rules.yaml
 
 # Run cross-platform tests
 axis test rules.yaml vectors.json
-
-# Generate framework integrations
-axis generate react rules.yaml --output useRules.ts
-axis generate flask rules.yaml --output app.py
 ```
 
-##  **Architecture**
+## **Architecture: The CALYX-PY Philosophy**
 
-### **Functional Programming as Infrastructure**
-AXIS applies React's core insight—pure functions + immutable state—to any deterministic system:
+AXIS follows the principle: **"Every line of code is a liability until proven otherwise."**
 
 ```
-YAML Rules → AST → Pure Reducer → Cryptographic Audit
-     ↑            ↑         ↑              ↑
-  Intent      Security   Logic        Verification
+YAML Rules → AST → Pure Reducer → Cryptographic Hash
+     ↑          ↑         ↑              ↑
+  Intent    Security   Logic        Verification
 ```
+
+**~400 lines of code total.** Readable in one sitting. Easy to port to other languages.
 
 ### **The Three Layers**
 1. **Rules (YAML)**: Human-readable business logic
 2. **Reducers (Pure Functions)**: Deterministic state transitions  
 3. **Adapters (Controlled I/O)**: Database, API, file operations
 
-### **Trust Through Mathematics**
-- **Canonical IR**: Deterministic intermediate representation
-- **SHA3-256 Hashing**: Cryptographic verification of execution
-- **Cross-Platform Verification**: Same hash = same behavior everywhere
+### **Security First**
+- **Whitelisted AST operations only** (no eval, no dynamic execution)
+- **I/O isolated in adapters** (rules can't perform side effects)
+- **Cryptographic verification** (hash-based audit trails)
 
-## 🤖 **LLM Integration**
+## **Cross-Platform Vision**
 
-AXIS is designed for the age of AI:
+*Current: Python implementation with cryptographic verification*
 
-- **LLMs generate YAML rules** (declarative, human-verifiable)
-- **Humans debug adapters** (imperative I/O code)
-- **Mathematics handles verification** (hash-based audit trails)
+*Future: Same YAML → Multiple runtimes with identical behavior*
 
-```yaml
-# LLM can generate this reliably
-rules:
-  - if: "user.subscription == 'premium'"
-    then: { features: ["unlimited", "priority"], rate_limit: 10000 }
-  - if: "user.subscription == 'free'"
-    then: { features: ["basic"], rate_limit: 100 }
+```bash
+# Vision (not yet implemented)
+axis compile rules.yaml --target python    # ✅ Current
+axis compile rules.yaml --target js        # 🚧 Planned  
+axis compile rules.yaml --target wasm      # 🚧 Planned
+axis compile rules.yaml --target rust      # 🚧 Planned
+
+# Same hash = mathematically identical behavior
 ```
 
-##  **Examples**
+The foundation is built for cross-platform determinism. The YAML → AST → Reducer pipeline is language-agnostic by design.
+
+## **Examples**
 
 ### User Access Control
 ```yaml
@@ -278,48 +284,45 @@ rules:
     then: { status: "auto_approved", fast_track: true }
 ```
 
-## 🔧 **Development**
+## **Why This Matters Now**
 
-### Local Development
+In the age of AI, we need **trustworthy infrastructure** for LLM-generated logic:
+
+1. **LLMs generate rules**, not code (safer, auditable)
+2. **Humans debug adapters** (traditional imperative code)  
+3. **Mathematics handles verification** (hash-based proof)
+
+AXIS is the **missing layer** between AI and production systems.
+
+## **Development**
+
+### Local Setup
 ```bash
 git clone https://github.com/your-org/axis
 cd axis
-pip install -e .
-
-# Run tests
-python -m pytest
-
-# Run examples
-python examples/flask_app.py
+pip install -e ".[dev]"
+make test demo
 ```
 
 ### Contributing
 1. Fork the repository
 2. Create a feature branch
-3. Add tests for new functionality  
-4. Ensure all tests pass
+3. Follow the CALYX-PY philosophy: **keep it minimal**
+4. Add tests and ensure they pass
 5. Submit a pull request
 
-##  **License**
+## **License**
 
 MIT License - see LICENSE file for details.
 
-##  **Acknowledgments**
+## **Philosophy**
 
-AXIS builds on insights from:
-- **React/Redux**: Functional state management patterns
-- **Git**: Content-addressable storage and hashing
-- **WebAssembly**: Universal compilation targets
-- **Kubernetes**: Declarative configuration as code
+> *"Split the atom of software complexity and find that simplicity is the most powerful force inside."*
 
-## 🔗 **Links**
-
-- [Documentation](https://axis-docs.example.com)
-- [Examples](https://github.com/whitecell-dev/axis/tree/main/examples)
-- [Community](https://discord.gg/axis)
-- [Issues](https://github.com/whitecell-dev/axis/issues)
+AXIS proves that the most powerful abstractions are often the simplest ones. By focusing on the essential 20% that delivers 80% of the value, we've created something that's both more powerful and more comprehensible than what came before.
 
 ---
 
-**AXIS: React for Deterministic Reasoning**  
-*Making computational trust as simple as `git commit`* ⚡
+**AXIS: Making computational trust as simple as `git commit`** ⚡
+
+*React for Deterministic Reasoning*

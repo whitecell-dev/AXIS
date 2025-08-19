@@ -1,11 +1,32 @@
 [project]
-name = "AXIS-py"
-description = "Minimal Python AI utils: schema validation, rules, LLM fallback, no bloat"
+name = "axis-py"
 version = "0.1.0"
-authors = [{name = "Maykon Meza"}]
-dependencies = ["pyyaml", "requests"]
+description = "React for Deterministic Reasoning – Minimal Python logic engine with YAML rules, pure reducers, and audit trails"
+authors = [
+  { name = "Maykon Meza", email = "maykon@example.com" }
+]
+license = { text = "MIT" }
+readme = "README.md"
 requires-python = ">=3.8"
 
+dependencies = [
+  "pyyaml>=6.0",
+  "requests>=2.0"
+]
+
+[project.optional-dependencies]
+dev = ["pytest", "ruff", "black"]
+
+[project.urls]
+Homepage = "https://github.com/whitecell-dev/axis"
+Documentation = "https://axis-docs.example.com"
+Repository = "https://github.com/whitecell-dev/axis"
+Issues = "https://github.com/whitecell-dev/axis/issues"
+
 [project.scripts]
-AXIS-py = "AXIS.cli:main"  # Optional CLI runner
+axis = "axis.cli.main:run_cli"
+
+[build-system]
+requires = ["setuptools>=61.0"]
+build-backend = "setuptools.build_meta"
 

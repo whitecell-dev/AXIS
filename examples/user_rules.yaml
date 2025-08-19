@@ -1,0 +1,65 @@
+component: UserValidation
+initial_state:
+  errors: []
+  computed: {}
+
+rules:
+  # Age validation
+  - if: "age >= 18"
+    then:
+      status: "adult"
+      can_vote: true
+      computed:
+        age_group: "adult"
+  
+  - if: "age < 18"
+    then:
+      status: "minor"
+      can_vote: false
+      computed:
+        age_group: "minor"
+  
+  # Email validation
+  - if: "not email"
+    then:
+      errors+: ["Email is required"]
+  
+  - if: "email and '@' not in email"
+    then:
+      errors+: ["Invalid email format"]
+  
+  # Role-based permissions
+  - if: "role == 'admin'"
+    then:
+      permissions: ["read", "write", "admin", "delete"]
+      access_level: "full"
+  
+  - if: "role == 'editor'"
+    then:
+      permissions: ["read", "write"]
+      access_level: "limited"
+  
+  - if: "role == 'viewer'"
+    then:
+      permissions: ["read"]
+      access_level: "readonly"
+  
+  # Account status checks
+  - if: "not active"
+    then:
+      status: "disabled"
+      permissions: []
+      errors+: ["Account is disabled"]
+  
+  # Validation summary
+  - if: "len(errors) == 0"
+    then:
+      valid: true
+      computed:
+        validation_status: "passed"
+  
+  - if: "len(errors) > 0"
+    then:
+      valid: false
+      computed:
+        validation_status: "failed"
