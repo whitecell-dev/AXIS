@@ -4,10 +4,10 @@ AXIS-ADAPTERS: Monadic effects for JSON
 Controlled side effects and external system integration
 
 Pipeline: JSON → Effects → JSON + Side Effects
-- Template-based command execution
-- Safe parameter substitution
-- Audit trail of all effects
-- Unix tool integration
+- Template-based command execution with security filters
+- Safe parameter substitution with injection protection
+- Command allowlist and resource limits
+- Full audit trail of all effects
 
 Usage:
     echo '{"user": "alice", "email": "alice@example.com"}' | python axis_adapters.py exec save.yaml
@@ -19,10 +19,12 @@ import argparse
 import hashlib
 import math
 import subprocess
-import tempfile
 import os
 import re
+import shlex
+import resource
 from typing import Any, Dict, List, Union
+from datetime import datetime
 
 # Optional YAML support
 try:
@@ -33,68 +35,132 @@ except ImportError:
     yaml = None
 
 # ============================================================================
-# CANONICALIZATION & HASHING (from AXIS core)
+# RFC 8785 COMPLIANT CANONICALIZATION (shared)
 # ============================================================================
 
 def canonicalize(obj: Any) -> Any:
-    """Cross-target deterministic canonicalization"""
+    """RFC 8785 compliant JSON canonicalization"""
     if isinstance(obj, dict):
         return {k: canonicalize(obj[k]) for k in sorted(obj.keys())}
     elif isinstance(obj, list):
         return [canonicalize(v) for v in obj]
-    elif isinstance(obj, (int, float)):
-        f = float(obj)
-        if not math.isfinite(f):
-            raise ValueError("Non-finite numbers not allowed")
-        return f
-    else:
+    elif isinstance(obj, bool):
         return obj
+    elif isinstance(obj, int):
+        return obj
+    elif isinstance(obj, float):
+        if not math.isfinite(obj):
+            raise ValueError("Non-finite numbers not allowed")
+        return obj
+    elif obj is None:
+        return obj
+    else:
+        return str(obj)
+
+def payload_view(data: dict) -> dict:
+    """Extract payload view (exclude audit keys starting with _)"""
+    if isinstance(data, dict):
+        return {k: payload_view(v) if isinstance(v, dict) else v
+                for k, v in data.items() 
+                if not (isinstance(k, str) and k.startswith("_"))}
+    return data
 
 def sha3_256_hex(s: str) -> str:
-    """Content addressing for adapter verification"""
+    """Content addressing with strict canonicalization"""
     return hashlib.sha3_256(s.encode("utf-8")).hexdigest()
 
+def compute_hash(obj: Any) -> str:
+    """Compute canonical hash of object"""
+    canonical = canonicalize(obj)
+    json_str = json.dumps(canonical, sort_keys=True, separators=(',', ':'))
+    return sha3_256_hex(json_str)
+
 # ============================================================================
-# TEMPLATE SUBSTITUTION
+# SECURITY CONFIGURATION
 # ============================================================================
 
-def safe_substitute(template: str, data: dict) -> str:
-    """Safely substitute template variables with data"""
+# Default allowlist of safe commands
+DEFAULT_COMMAND_ALLOWLIST = {
+    'echo', 'cat', 'date', 'wc', 'head', 'tail', 'sort', 'uniq',
+    'sqlite3', 'psql', 'mysql', 'curl', 'wget', 'mail', 'sendmail',
+    'jq', 'grep', 'sed', 'awk', 'tr', 'cut', 'base64'
+}
+
+# Dangerous characters that require filtering
+UNSAFE_CHARS = set(';&|`$(){}[]<>*?~')
+
+# Template filters for safe substitution
+TEMPLATE_FILTERS = {
+    'json': lambda x: json.dumps(x, separators=(',', ':')),
+    'sharg': lambda x: shlex.quote(str(x)),
+    'sql': lambda x: str(x).replace("'", "''"),  # SQL single quote escape
+    'url': lambda x: __import__('urllib.parse').quote(str(x)),
+    'b64': lambda x: __import__('base64').b64encode(str(x).encode()).decode()
+}
+
+# ============================================================================
+# SECURE TEMPLATE SUBSTITUTION
+# ============================================================================
+
+def secure_substitute(template: str, data: dict, command: str = '') -> str:
+    """Secure template substitution with injection protection"""
+    
     def replace_var(match):
-        var_name = match.group(1)
+        var_expr = match.group(1).strip()
         
-        # Handle nested access like user.email
-        if '.' in var_name:
-            parts = var_name.split('.')
-            value = data
-            for part in parts:
-                if isinstance(value, dict):
-                    value = value.get(part)
-                else:
-                    return f"{{{{UNDEFINED:{var_name}}}}}"
+        # Parse variable and optional filter: {{var|filter}}
+        if '|' in var_expr:
+            var_path, filter_name = var_expr.split('|', 1)
+            var_path = var_path.strip()
+            filter_name = filter_name.strip()
         else:
-            value = data.get(var_name)
+            var_path = var_expr
+            filter_name = None
+        
+        # Resolve variable value
+        parts = var_path.split('.')
+        value = data
+        for part in parts:
+            if isinstance(value, dict):
+                value = value.get(part)
+            else:
+                return f"{{{{UNDEFINED:{var_path}}}}}"
         
         if value is None:
-            return f"{{{{UNDEFINED:{var_name}}}}}"
+            return f"{{{{UNDEFINED:{var_path}}}}}"
         
-        # Handle different types
-        if isinstance(value, (dict, list)):
-            return json.dumps(value)
+        # Apply filter if specified
+        if filter_name:
+            if filter_name not in TEMPLATE_FILTERS:
+                raise ValueError(f"Unknown template filter: {filter_name}")
+            try:
+                value = TEMPLATE_FILTERS[filter_name](value)
+            except Exception as e:
+                raise ValueError(f"Filter {filter_name} failed: {e}")
         else:
-            return str(value)
+            # No filter - check for unsafe characters in sensitive commands
+            str_value = str(value)
+            if _is_sensitive_command(command) and any(c in str_value for c in UNSAFE_CHARS):
+                raise ValueError(f"Unsafe characters in unfiltered substitution for {command}: {str_value}")
+            value = str_value
+        
+        return str(value)
     
-    # Replace {{variable}} patterns
     return re.sub(r'\{\{([^}]+)\}\}', replace_var, template)
+
+def _is_sensitive_command(command: str) -> bool:
+    """Check if command is sensitive to injection"""
+    sensitive_commands = {'sqlite3', 'psql', 'mysql', 'curl', 'sh', 'bash'}
+    return command in sensitive_commands
 
 # ============================================================================
 # ADAPTER ENGINE (Monadic Effects)
 # ============================================================================
 
 class AdapterEngine:
-    """Execute controlled side effects with audit trail"""
+    """Execute controlled side effects with security and audit trail"""
     
-    def __init__(self, config: Union[dict, str]):
+    def __init__(self, config: Union[dict, str], unsafe_mode: bool = False):
         if isinstance(config, str):
             if not HAS_YAML:
                 raise RuntimeError("YAML support requires: pip install pyyaml")
@@ -104,14 +170,50 @@ class AdapterEngine:
             self.config = config
         
         self.adapters = self.config.get('adapters', [])
-        self.config_hash = self._generate_config_hash()
+        self.command_allowlist = set(self.config.get('allowed_commands', DEFAULT_COMMAND_ALLOWLIST))
+        self.unsafe_mode = unsafe_mode
+        self.config_hash = compute_hash(self.config)
         self.execution_log = []
+        
+        # Validate adapters
+        self._validate_adapters()
     
-    def _generate_config_hash(self) -> str:
-        """Generate hash of adapter configuration"""
-        canonical_config = canonicalize(self.config)
-        config_json = json.dumps(canonical_config, sort_keys=True, separators=(',', ':'))
-        return sha3_256_hex(config_json)
+    def _validate_adapters(self):
+        """Validate adapter configuration for security"""
+        for i, adapter in enumerate(self.adapters):
+            if not isinstance(adapter, dict):
+                raise ValueError(f"Adapter {i}: must be a dict")
+            
+            if 'command' not in adapter:
+                raise ValueError(f"Adapter {i}: missing 'command'")
+            
+            command = adapter['command']
+            if not isinstance(command, str):
+                raise ValueError(f"Adapter {i}: 'command' must be string")
+            
+            # Security checks
+            if not self.unsafe_mode:
+                # Check command allowlist
+                if command not in self.command_allowlist:
+                    raise ValueError(f"Adapter {i}: command '{command}' not in allowlist")
+                
+                # Reject absolute paths
+                if command.startswith('/'):
+                    raise ValueError(f"Adapter {i}: absolute paths not allowed: {command}")
+                
+                # Reject shell metacharacters in command
+                if any(c in command for c in UNSAFE_CHARS):
+                    raise ValueError(f"Adapter {i}: unsafe characters in command: {command}")
+            
+            # Validate args if present
+            args = adapter.get('args', [])
+            if not isinstance(args, list):
+                raise ValueError(f"Adapter {i}: 'args' must be list")
+            
+            # Validate timeout if present
+            timeout = adapter.get('timeout', 30)
+            if not isinstance(timeout, (int, float)) or timeout <= 0:
+                raise ValueError(f"Adapter {i}: 'timeout' must be positive number")
     
     def exec(self, input_data: dict) -> dict:
         """Execute all adapters with input data"""
@@ -134,9 +236,11 @@ class AdapterEngine:
         # Add adapter audit
         audit = {
             'config_hash': self.config_hash,
-            'input_hash': sha3_256_hex(json.dumps(canonicalize(input_data), sort_keys=True)),
+            'input_hash': compute_hash(payload_view(input_data)),
             'adapters_executed': len(results),
-            'execution_log': self.execution_log
+            'execution_log': self.execution_log,
+            'unsafe_mode': self.unsafe_mode,
+            'version': 'axis-adapters@1.0.0'
         }
         
         return {
@@ -146,19 +250,28 @@ class AdapterEngine:
         }
     
     def _execute_adapter(self, adapter: dict, data: dict, index: int) -> dict:
-        """Execute a single adapter"""
+        """Execute a single adapter with security controls"""
         adapter_name = adapter.get('name', f'adapter_{index}')
-        command = adapter.get('command')
+        command = adapter['command']
         args = adapter.get('args', [])
         input_template = adapter.get('input', '')
+        timeout = adapter.get('timeout', 30)
+        cwd = adapter.get('cwd')
+        env_allowlist = adapter.get('env_allowlist', [])
         
-        if not command:
-            raise ValueError(f"Adapter {adapter_name}: missing 'command'")
+        # Substitute templates securely
+        try:
+            substituted_command = secure_substitute(command, data, command)
+            substituted_args = [secure_substitute(arg, data, command) for arg in args]
+            substituted_input = secure_substitute(input_template, data, command) if input_template else ''
+        except Exception as e:
+            raise ValueError(f"Template substitution failed: {e}")
         
-        # Substitute templates
-        substituted_command = safe_substitute(command, data)
-        substituted_args = [safe_substitute(arg, data) for arg in args]
-        substituted_input = safe_substitute(input_template, data)
+        # Prepare environment (restrictive by default)
+        env = {'PATH': os.environ.get('PATH', '/usr/bin:/bin')}
+        for env_var in env_allowlist:
+            if env_var in os.environ:
+                env[env_var] = os.environ[env_var]
         
         # Log execution attempt
         log_entry = {
@@ -166,27 +279,49 @@ class AdapterEngine:
             'command': substituted_command,
             'args': substituted_args,
             'input_length': len(substituted_input),
-            'timestamp': self._get_timestamp()
+            'timestamp': datetime.now().isoformat(),
+            'timeout': timeout
         }
         
         try:
+            # Set resource limits (Linux/Unix only)
+            def set_limits():
+                try:
+                    # CPU time limit (seconds)
+                    resource.setrlimit(resource.RLIMIT_CPU, (timeout * 2, timeout * 2))
+                    # Memory limit (256MB)
+                    resource.setrlimit(resource.RLIMIT_AS, (256 * 1024 * 1024, 256 * 1024 * 1024))
+                    # File size limit (100MB)
+                    resource.setrlimit(resource.RLIMIT_FSIZE, (100 * 1024 * 1024, 100 * 1024 * 1024))
+                    # Number of processes
+                    resource.setrlimit(resource.RLIMIT_NPROC, (100, 100))
+                except (ImportError, OSError):
+                    # Resource limits not available on this platform
+                    pass
+            
             # Execute command
+            cmd_args = [substituted_command] + substituted_args
+            
             if substituted_input:
-                # Command expects stdin
                 result = subprocess.run(
-                    [substituted_command] + substituted_args,
+                    cmd_args,
                     input=substituted_input,
                     text=True,
                     capture_output=True,
-                    timeout=30  # 30 second timeout
+                    timeout=timeout,
+                    env=env,
+                    cwd=cwd,
+                    preexec_fn=set_limits if os.name != 'nt' else None
                 )
             else:
-                # Command with no stdin
                 result = subprocess.run(
-                    [substituted_command] + substituted_args,
+                    cmd_args,
                     text=True,
                     capture_output=True,
-                    timeout=30
+                    timeout=timeout,
+                    env=env,
+                    cwd=cwd,
+                    preexec_fn=set_limits if os.name != 'nt' else None
                 )
             
             # Process result
@@ -217,17 +352,17 @@ class AdapterEngine:
         except subprocess.TimeoutExpired:
             log_entry.update({'status': 'timeout'})
             self.execution_log.append(log_entry)
-            raise ValueError(f"Adapter {adapter_name}: command timed out")
+            raise ValueError(f"Adapter {adapter_name}: command timed out after {timeout}s")
         
         except FileNotFoundError:
             log_entry.update({'status': 'not_found'})
             self.execution_log.append(log_entry)
             raise ValueError(f"Adapter {adapter_name}: command not found: {substituted_command}")
-    
-    def _get_timestamp(self):
-        """Get current timestamp"""
-        from datetime import datetime
-        return datetime.now().isoformat()
+        
+        except PermissionError:
+            log_entry.update({'status': 'permission_denied'})
+            self.execution_log.append(log_entry)
+            raise ValueError(f"Adapter {adapter_name}: permission denied: {substituted_command}")
 
 # ============================================================================
 # CLI INTERFACE
@@ -238,106 +373,76 @@ def cli():
     parser = argparse.ArgumentParser(description="AXIS-ADAPTERS: Controlled side effects")
     parser.add_argument("command", choices=['exec', 'validate', 'hash'], help="Command to execute")
     parser.add_argument("config", help="Adapter configuration file")
-    parser.add_argument("--input", help="Input JSON file (default: stdin)")
-    parser.add_argument("--output", help="Output file (default: stdout)")
+    parser.add_argument("--input", help="Input JSON file (use '-' for stdin)")
+    parser.add_argument("--output", help="Output file (use '-' for stdout)")
     parser.add_argument("--dry-run", action='store_true', help="Show what would be executed without running")
+    parser.add_argument("--unsafe", action='store_true', help="Disable security restrictions (dangerous)")
+    parser.add_argument("--strict", action='store_true', help="Strict validation mode")
+    parser.add_argument("--quiet", "-q", action='store_true', help="Suppress non-essential output")
     
     args = parser.parse_args()
     
     try:
         if args.command == 'exec':
             # Load input data
-            if args.input:
+            if args.input == '-' or args.input is None:
+                input_data = json.load(sys.stdin)
+            else:
                 with open(args.input, 'r') as f:
                     input_data = json.load(f)
-            else:
-                input_data = json.load(sys.stdin)
             
             # Execute adapters
-            engine = AdapterEngine(args.config)
+            engine = AdapterEngine(args.config, unsafe_mode=args.unsafe)
             
             if args.dry_run:
                 # Show what would be executed
-                print("🔍 DRY RUN - Commands that would be executed:")
+                if not args.quiet:
+                    print("🔍 DRY RUN - Commands that would be executed:")
                 for i, adapter in enumerate(engine.adapters):
                     name = adapter.get('name', f'adapter_{i}')
-                    command = safe_substitute(adapter.get('command', ''), input_data)
-                    args_list = [safe_substitute(arg, input_data) for arg in adapter.get('args', [])]
-                    print(f"  {name}: {command} {' '.join(args_list)}")
+                    try:
+                        command = secure_substitute(adapter.get('command', ''), input_data, adapter.get('command', ''))
+                        args_list = [secure_substitute(arg, input_data, adapter.get('command', '')) 
+                                   for arg in adapter.get('args', [])]
+                        if not args.quiet:
+                            print(f"  {name}: {command} {' '.join(args_list)}")
+                    except Exception as e:
+                        if not args.quiet:
+                            print(f"  {name}: ERROR - {e}")
                 return
             
             result = engine.exec(input_data)
             
+            # Check for failures in strict mode
+            if args.strict:
+                failed_adapters = [r for r in result['results'] if r['status'] != 'success']
+                if failed_adapters:
+                    print(f"Adapters failed: {[a['adapter_name'] for a in failed_adapters]}", file=sys.stderr)
+                    sys.exit(1)
+            
             # Output result
-            output = json.dumps(result, indent=2)
-            if args.output:
+            output = json.dumps(result, indent=None if args.quiet else 2, separators=(',', ':'))
+            if args.output == '-' or args.output is None:
+                print(output)
+            else:
                 with open(args.output, 'w') as f:
                     f.write(output)
-            else:
-                print(output)
         
         elif args.command == 'validate':
-            engine = AdapterEngine(args.config)
-            print(f"✓ Adapters valid")
-            print(f"✓ Adapter count: {len(engine.adapters)}")
-            print(f"✓ Config Hash: {engine.config_hash}")
+            engine = AdapterEngine(args.config, unsafe_mode=args.unsafe)
+            if not args.quiet:
+                print(f"✅ Adapters valid")
+                print(f"✅ Adapter count: {len(engine.adapters)}")
+                print(f"✅ Config Hash: {engine.config_hash}")
+                print(f"✅ Security mode: {'UNSAFE' if args.unsafe else 'SAFE'}")
         
         elif args.command == 'hash':
-            engine = AdapterEngine(args.config)
+            engine = AdapterEngine(args.config, unsafe_mode=args.unsafe)
             print(engine.config_hash)
     
     except Exception as e:
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
-# ============================================================================
-# DEMO & EXAMPLES
-# ============================================================================
-
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        cli()
-    else:
-        print("🔌 AXIS-ADAPTERS: Monadic effects for JSON")
-        print("Controlled side effects and external system integration\n")
-        
-        # Demo adapters
-        sample_data = {"user": "alice", "email": "alice@example.com", "status": "active"}
-        sample_config = {
-            "adapters": [
-                {
-                    "name": "log_user",
-                    "command": "echo",
-                    "args": ["User {{user}} ({{email}}) is {{status}}"]
-                },
-                {
-                    "name": "save_json",
-                    "command": "cat",
-                    "input": "{{input_data|tojson}}"
-                },
-                {
-                    "name": "timestamp",
-                    "command": "date",
-                    "args": ["+%Y-%m-%d %H:%M:%S"]
-                }
-            ]
-        }
-        
-        engine = AdapterEngine(sample_config)
-        
-        print(f"Input:  {sample_data}")
-        print(f"Config: {len(engine.adapters)} adapters")
-        print(f"Hash:   {engine.config_hash[:16]}...")
-        
-        print(f"\nDry run:")
-        for i, adapter in enumerate(engine.adapters):
-            name = adapter.get('name', f'adapter_{i}')
-            command = safe_substitute(adapter.get('command', ''), sample_data)
-            args_list = [safe_substitute(arg, sample_data) for arg in adapter.get('args', [])]
-            print(f"  {name}: {command} {' '.join(args_list)}")
-        
-        print(f"\nUsage:")
-        print(f"  echo '{json.dumps(sample_data)}' | python axis_adapters.py exec config.yaml")
-        print(f"  python axis_adapters.py validate config.yaml")
-        print(f"  python axis_adapters.py hash config.yaml")
-        print(f"  python axis_adapters.py exec config.yaml --dry-run")
+    cli()

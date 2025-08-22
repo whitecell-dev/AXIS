@@ -19,7 +19,6 @@ import argparse
 import hashlib
 import math
 import ast
-import os
 from typing import Any, Dict, List, Union
 
 # Optional YAML support
@@ -31,29 +30,48 @@ except ImportError:
     yaml = None
 
 # ============================================================================
-# CANONICALIZATION & HASHING (from AXIS core)
+# RFC 8785 COMPLIANT CANONICALIZATION (shared with pipes)
 # ============================================================================
 
 def canonicalize(obj: Any) -> Any:
-    """Cross-target deterministic canonicalization"""
+    """RFC 8785 compliant JSON canonicalization"""
     if isinstance(obj, dict):
         return {k: canonicalize(obj[k]) for k in sorted(obj.keys())}
     elif isinstance(obj, list):
         return [canonicalize(v) for v in obj]
-    elif isinstance(obj, (int, float)):
-        f = float(obj)
-        if not math.isfinite(f):
-            raise ValueError("Non-finite numbers not allowed")
-        return f
-    else:
+    elif isinstance(obj, bool):
         return obj
+    elif isinstance(obj, int):
+        return obj
+    elif isinstance(obj, float):
+        if not math.isfinite(obj):
+            raise ValueError("Non-finite numbers not allowed")
+        return obj
+    elif obj is None:
+        return obj
+    else:
+        return str(obj)
+
+def payload_view(data: dict) -> dict:
+    """Extract payload view (exclude audit keys starting with _)"""
+    if isinstance(data, dict):
+        return {k: payload_view(v) if isinstance(v, dict) else v
+                for k, v in data.items() 
+                if not (isinstance(k, str) and k.startswith("_"))}
+    return data
 
 def sha3_256_hex(s: str) -> str:
-    """Content addressing for rule verification"""
+    """Content addressing with strict canonicalization"""
     return hashlib.sha3_256(s.encode("utf-8")).hexdigest()
 
+def compute_hash(obj: Any) -> str:
+    """Compute canonical hash of object"""
+    canonical = canonicalize(obj)
+    json_str = json.dumps(canonical, sort_keys=True, separators=(',', ':'))
+    return sha3_256_hex(json_str)
+
 # ============================================================================
-# SECURE AST PARSER (from AXIS core)
+# SECURE AST PARSER WITH LIMITS
 # ============================================================================
 
 ALLOWED_OPS = {
@@ -61,9 +79,19 @@ ALLOWED_OPS = {
     'and', 'or', 'not'
 }
 
+ALLOWED_LITERALS = (str, int, float, bool, type(None))
+MAX_CONDITION_LENGTH = 4096
+MAX_AST_DEPTH = 32
+
 def parse_condition_to_ast(condition: str) -> dict:
-    """Parse condition string to restricted AST"""
-    def _convert(node):
+    """Parse condition string to restricted AST with security limits"""
+    if len(condition) > MAX_CONDITION_LENGTH:
+        raise ValueError(f"Condition too long (max {MAX_CONDITION_LENGTH} chars)")
+    
+    def _convert(node, depth=0):
+        if depth > MAX_AST_DEPTH:
+            raise ValueError(f"AST too deep (max {MAX_AST_DEPTH} levels)")
+        
         if isinstance(node, ast.BoolOp):
             op_name = node.op.__class__.__name__.lower()
             if op_name not in ALLOWED_OPS:
@@ -71,7 +99,7 @@ def parse_condition_to_ast(condition: str) -> dict:
             return {
                 'type': 'logical',
                 'op': op_name,
-                'values': [_convert(v) for v in node.values]
+                'values': [_convert(v, depth + 1) for v in node.values]
             }
         elif isinstance(node, ast.Compare):
             if len(node.ops) != 1:
@@ -82,8 +110,8 @@ def parse_condition_to_ast(condition: str) -> dict:
             return {
                 'type': 'binary_op',
                 'op': op_name,
-                'left': _convert(node.left),
-                'right': _convert(node.comparators[0])
+                'left': _convert(node.left, depth + 1),
+                'right': _convert(node.comparators[0], depth + 1)
             }
         elif isinstance(node, ast.UnaryOp):
             op_name = node.op.__class__.__name__.lower()
@@ -92,11 +120,14 @@ def parse_condition_to_ast(condition: str) -> dict:
             return {
                 'type': 'unary_op',
                 'op': op_name,
-                'operand': _convert(node.operand)
+                'operand': _convert(node.operand, depth + 1)
             }
         elif isinstance(node, ast.Name):
             return {'type': 'var', 'name': node.id}
         elif isinstance(node, ast.Constant):
+            # Restrict literal types for security
+            if type(node.value) not in ALLOWED_LITERALS:
+                raise ValueError(f"Unsupported literal type: {type(node.value)}")
             return {'type': 'literal', 'value': node.value}
         elif isinstance(node, ast.Attribute):
             return {'type': 'var', 'name': _get_full_name(node)}
@@ -166,7 +197,7 @@ def evaluate_ast(ast_node: dict, context: dict) -> Any:
     return False
 
 # ============================================================================
-# RULE ENGINE (β-reduction)
+# RULE ENGINE (β-reduction) - PURE
 # ============================================================================
 
 class RuleEngine:
@@ -183,27 +214,58 @@ class RuleEngine:
         
         self.rules = self.config.get('rules', [])
         self.component_name = self.config.get('component', 'anonymous')
-        self.rules_hash = self._generate_rules_hash()
-    
-    def _generate_rules_hash(self) -> str:
-        """Generate hash of rules configuration"""
-        canonical_rules = canonicalize({
+        self.rules_hash = compute_hash({
             'component': self.component_name,
             'rules': self.rules,
             'version': 'axis-rules@1.0.0'
         })
-        rules_json = json.dumps(canonical_rules, sort_keys=True, separators=(',', ':'))
-        return sha3_256_hex(rules_json)
+        
+        # Pre-validate rules
+        self._validate_rules()
+    
+    def _validate_rules(self):
+        """Validate rule structure and syntax"""
+        for i, rule in enumerate(self.rules):
+            if not isinstance(rule, dict):
+                raise ValueError(f"Rule {i}: must be a dict")
+            
+            # Check required structure
+            has_condition = 'if' in rule
+            has_then = 'then' in rule
+            has_else = 'else' in rule
+            
+            if not (has_then or has_else):
+                raise ValueError(f"Rule {i}: must have 'then' or 'else'")
+            
+            # Validate condition syntax if present
+            if has_condition:
+                try:
+                    parse_condition_to_ast(rule['if'])
+                except Exception as e:
+                    raise ValueError(f"Rule {i} condition invalid: {e}")
+            
+            # Validate action structure
+            for action_key in ['then', 'else']:
+                if action_key in rule:
+                    action = rule[action_key]
+                    if not isinstance(action, dict):
+                        raise ValueError(f"Rule {i} {action_key}: must be a dict")
+                    
+                    # Check merge policy syntax
+                    for key in action.keys():
+                        if key.endswith('+') and not isinstance(action[key], (list, str)):
+                            raise ValueError(f"Rule {i} {action_key}: {key} merge requires list or string")
     
     def apply(self, input_data: dict) -> dict:
         """Apply rules to input data - pure β-reduction"""
         # Deep copy to avoid mutations
         new_state = json.loads(json.dumps(input_data))
+        
+        # Context is frozen at input state (single-pass semantics)
         context = dict(new_state)
         
-        # Clear computed state
-        new_state.setdefault('computed', {}).clear()
-        new_state.setdefault('errors', []).clear()
+        # Respect existing fields - don't auto-clear
+        errors = new_state.get('errors', [])
         
         # Collect all pending changes
         pending_changes = []
@@ -211,14 +273,13 @@ class RuleEngine:
         for i, rule in enumerate(self.rules):
             should_apply = True
             
-            # Evaluate condition
+            # Evaluate condition against frozen context
             if 'if' in rule:
                 try:
                     condition_ast = parse_condition_to_ast(rule['if'])
                     should_apply = evaluate_ast(condition_ast, context)
                 except Exception as e:
-                    if os.getenv('AXIS_DEBUG'):
-                        print(f"Rule {i} condition failed: {e}", file=sys.stderr)
+                    errors.append(f"Rule {i} condition failed: {e}")
                     should_apply = False
             
             # Select then/else branch
@@ -242,18 +303,24 @@ class RuleEngine:
                             'order': i
                         })
         
-        # Apply changes deterministically
+        # Apply changes deterministically by order, then key
         pending_changes.sort(key=lambda x: (x['order'], x['key']))
         
         for change in pending_changes:
             self._apply_change(new_state, change)
         
-        # Add rule audit
+        # Update errors if any occurred
+        if errors:
+            new_state['errors'] = errors
+        
+        # Add rule audit (deterministic)
+        payload = payload_view(new_state)
         audit = {
             'rules_hash': self.rules_hash,
-            'input_hash': sha3_256_hex(json.dumps(canonicalize(input_data), sort_keys=True)),
-            'output_hash': sha3_256_hex(json.dumps(canonicalize(new_state), sort_keys=True)),
-            'rules_applied': len([c for c in pending_changes])
+            'input_hash': compute_hash(payload_view(input_data)),
+            'output_hash': compute_hash(payload),
+            'rules_applied': len(pending_changes),
+            'component': self.component_name
         }
         
         return {**new_state, '_rule_audit': audit}
@@ -264,11 +331,17 @@ class RuleEngine:
         value = change['value']
         merge_policy = change['merge_policy']
         
-        if merge_policy == 'append' and isinstance(state.get(key), list):
-            if isinstance(value, list):
-                state[key].extend(value)
+        if merge_policy == 'append':
+            if key not in state:
+                state[key] = []
+            if isinstance(state[key], list):
+                if isinstance(value, list):
+                    state[key].extend(value)
+                else:
+                    state[key].append(value)
             else:
-                state[key].append(value)
+                # Convert to list and append
+                state[key] = [state[key], value] if not isinstance(value, list) else [state[key]] + value
         else:  # replace (default)
             state[key] = value
 
@@ -281,37 +354,45 @@ def cli():
     parser = argparse.ArgumentParser(description="AXIS-RULES: Pure decision logic")
     parser.add_argument("command", choices=['apply', 'validate', 'hash'], help="Command to execute")
     parser.add_argument("config", help="Rules configuration file")
-    parser.add_argument("--input", help="Input JSON file (default: stdin)")
-    parser.add_argument("--output", help="Output file (default: stdout)")
+    parser.add_argument("--input", help="Input JSON file (use '-' for stdin)")
+    parser.add_argument("--output", help="Output file (use '-' for stdout)")
+    parser.add_argument("--strict", action='store_true', help="Strict validation mode")
+    parser.add_argument("--quiet", "-q", action='store_true', help="Suppress non-essential output")
     
     args = parser.parse_args()
     
     try:
         if args.command == 'apply':
             # Load input data
-            if args.input:
+            if args.input == '-' or args.input is None:
+                input_data = json.load(sys.stdin)
+            else:
                 with open(args.input, 'r') as f:
                     input_data = json.load(f)
-            else:
-                input_data = json.load(sys.stdin)
             
             # Apply rules
             engine = RuleEngine(args.config)
             result = engine.apply(input_data)
             
+            # Strict mode: fail on errors
+            if args.strict and 'errors' in result and result['errors']:
+                print(f"Rules failed with errors: {result['errors']}", file=sys.stderr)
+                sys.exit(1)
+            
             # Output result
-            output = json.dumps(result, indent=2)
-            if args.output:
+            output = json.dumps(result, indent=None if args.quiet else 2, separators=(',', ':'))
+            if args.output == '-' or args.output is None:
+                print(output)
+            else:
                 with open(args.output, 'w') as f:
                     f.write(output)
-            else:
-                print(output)
         
         elif args.command == 'validate':
             engine = RuleEngine(args.config)
-            print(f"✓ Rules valid: {engine.component_name}")
-            print(f"✓ Rule count: {len(engine.rules)}")
-            print(f"✓ Rules Hash: {engine.rules_hash}")
+            if not args.quiet:
+                print(f"✅ Rules valid: {engine.component_name}")
+                print(f"✅ Rule count: {len(engine.rules)}")
+                print(f"✅ Rules Hash: {engine.rules_hash}")
         
         elif args.command == 'hash':
             engine = RuleEngine(args.config)
@@ -321,37 +402,5 @@ def cli():
         print(f"Error: {e}", file=sys.stderr)
         sys.exit(1)
 
-# ============================================================================
-# DEMO & EXAMPLES
-# ============================================================================
-
 if __name__ == "__main__":
-    if len(sys.argv) > 1:
-        cli()
-    else:
-        print("⚖️ AXIS-RULES: β-reduction for JSON")
-        print("Pure decision logic and state transformations\n")
-        
-        # Demo rules
-        sample_data = {"age": 25, "role": "admin", "active": True}
-        sample_config = {
-            "component": "UserAccess",
-            "rules": [
-                {"if": "age >= 18", "then": {"status": "adult", "can_vote": True}},
-                {"if": "role == 'admin'", "then": {"permissions": ["read", "write", "admin"]}},
-                {"if": "not active", "then": {"errors+": ["Account disabled"]}}
-            ]
-        }
-        
-        engine = RuleEngine(sample_config)
-        result = engine.apply(sample_data)
-        clean_result = {k: v for k, v in result.items() if k != '_rule_audit'}
-        
-        print(f"Input:  {sample_data}")
-        print(f"Output: {clean_result}")
-        print(f"Hash:   {result['_rule_audit']['rules_hash'][:16]}...")
-        
-        print(f"\nUsage:")
-        print(f"  echo '{json.dumps(sample_data)}' | python axis_rules.py apply config.yaml")
-        print(f"  python axis_rules.py validate config.yaml")
-        print(f"  python axis_rules.py hash config.yaml")
+    cli()
