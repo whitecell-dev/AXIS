@@ -10,7 +10,7 @@
 
 AXIS completes what Unix started—universal composition of tools through structured data streams.
 
-| Unix (1970s) | AXIS (2024) |
+| Unix (1970s) | AXIS (2025) |
 |---------------|-------------|
 | `cat file.txt \| grep pattern \| sort` | `cat data.json \| axis-pipes run clean.yaml \| axis-rules apply logic.yaml` |
 | Text streams | **Structured streams** |
