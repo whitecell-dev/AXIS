@@ -175,17 +175,12 @@ class PipelineEngine:
         return data
     
     def _rename(self, data: dict, config: dict) -> dict:
-        """Rename fields"""
-        result = {}
+        result = dict(data)  # start with all original fields
         for old_key, new_key in config.items():
-            if old_key in data:
-                result[new_key] = data[old_key]
-            else:
-                # Keep non-renamed fields
-                for k, v in data.items():
-                    if k not in config:
-                        result[k] = v
+            if old_key in result:
+                result[new_key] = result.pop(old_key)
         return result
+
     
     def _filter(self, data: dict, config: dict) -> dict:
         """Filter data based on conditions"""

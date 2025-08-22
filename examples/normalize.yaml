@@ -1,0 +1,8 @@
+pipeline:
+  - rename:
+      user_name: name
+  - validate:
+      age: int
+  - enrich:
+      timestamp: now()
+      source: normalized

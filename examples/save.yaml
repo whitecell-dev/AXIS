@@ -1,0 +1,53 @@
+adapters:
+  # Adapter 1: Log the processed user data
+  - name: log_user_processing
+    command: echo
+    args: 
+      - "[{{timestamp}}] Processed user: {{name}} ({{category}}, {{role}}) - Status: {{account_status}}"
+
+  # Adapter 2: Save user data to a JSON file
+  - name: save_user_data
+    command: tee
+    args:
+      - "processed_users/{{name}}_{{timestamp}}.json"
+    input: |
+      {
+        "user_id": "{{name}}",
+        "processing_timestamp": "{{timestamp}}",
+        "category": "{{category}}",
+        "role": "{{role}}",
+        "account_status": "{{account_status}}",
+        "permissions": {{permissions}},
+        "risk_score": {{risk_score}},
+        "benefits": {{benefits}}
+      }
+
+  # Adapter 3: Create audit trail entry
+  - name: audit_trail
+    command: tee
+    args:
+      - "-a"
+      - "audit.log"
+    input: "{{timestamp}},{{name}},{{category}},{{role}},{{account_status}},{{risk_score}}"
+
+  # Adapter 4: Generate welcome email template (if adult user)
+  - name: generate_welcome_email
+    command: bash
+    args:
+      - "-c"
+      - "if [ '{{category}}' = 'adult' ]; then echo 'Welcome {{name}}! Your account ({{role}}) is now {{account_status}}.'; fi"
+
+  # Adapter 5: Create user directory structure
+  - name: create_user_dirs
+    command: mkdir
+    args:
+      - "-p"
+      - "users/{{name}}/documents"
+      - "users/{{name}}/logs"
+
+  # Adapter 6: Set file permissions based on role
+  - name: set_permissions
+    command: bash
+    args:
+      - "-c"
+      - "if [ '{{role}}' = 'admin' ]; then echo 'Setting admin permissions for {{name}}'; elif [ '{{role}}' = 'user' ]; then echo 'Setting user permissions for {{name}}'; else echo 'Setting guest permissions for {{name}}'; fi"

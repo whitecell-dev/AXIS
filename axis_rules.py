@@ -196,68 +196,135 @@ class RuleEngine:
         return sha3_256_hex(rules_json)
     
     def apply(self, input_data: dict) -> dict:
-        """Apply rules to input data - pure β-reduction"""
-        # Deep copy to avoid mutations
+        """Apply rules with fixpoint iteration, priority resolution, and conflict logging."""
+        # Deep copy to avoid mutating original
         new_state = json.loads(json.dumps(input_data))
-        context = dict(new_state)
-        
-        # Clear computed state
-        new_state.setdefault('computed', {}).clear()
-        new_state.setdefault('errors', []).clear()
-        
-        # Collect all pending changes
-        pending_changes = []
-        
-        for i, rule in enumerate(self.rules):
-            should_apply = True
-            
-            # Evaluate condition
-            if 'if' in rule:
-                try:
-                    condition_ast = parse_condition_to_ast(rule['if'])
-                    should_apply = evaluate_ast(condition_ast, context)
-                except Exception as e:
-                    if os.getenv('AXIS_DEBUG'):
-                        print(f"Rule {i} condition failed: {e}", file=sys.stderr)
-                    should_apply = False
-            
-            # Select then/else branch
-            target_branch = 'then' if should_apply else 'else'
-            if target_branch in rule:
-                changes = rule[target_branch]
-                if isinstance(changes, dict):
-                    for key, value in changes.items():
-                        # Handle merge policies
-                        merge_policy = 'replace'
-                        clean_key = key
-                        
-                        if key.endswith('+'):
-                            merge_policy = 'append'
-                            clean_key = key[:-1]
-                        
-                        pending_changes.append({
-                            'key': clean_key,
-                            'value': value,
-                            'merge_policy': merge_policy,
-                            'order': i
+
+        # Ensure error/computed fields exist
+        new_state.setdefault('computed', {})
+        new_state.setdefault('errors', [])
+
+        iteration = 0
+        max_iterations = 50
+        changed = True
+        total_changes = []
+        conflicts = []
+
+        while changed and iteration < max_iterations:
+            changed = False
+            iteration += 1
+            context = dict(new_state)
+            pending_changes = []
+
+            for i, rule in enumerate(self.rules):
+                should_apply = True
+
+                # Evaluate condition
+                if 'if' in rule:
+                    try:
+                        condition_ast = parse_condition_to_ast(rule['if'])
+                        should_apply = evaluate_ast(condition_ast, context)
+                    except Exception as e:
+                        if os.getenv('AXIS_DEBUG'):
+                            print(f"Rule {i} condition failed: {e}", file=sys.stderr)
+                        should_apply = False
+
+                # Select branch
+                target_branch = 'then' if should_apply else 'else'
+                if target_branch in rule:
+                    changes = rule[target_branch]
+                    if isinstance(changes, dict):
+                        for key, value in changes.items():
+                            merge_policy = 'replace'
+                            clean_key = key
+                            if key.endswith('+'):
+                                merge_policy = 'append'
+                                clean_key = key[:-1]
+
+                            priority = rule.get('priority', 0)
+
+                            pending_changes.append({
+                                'key': clean_key,
+                                'value': value,
+                                'merge_policy': merge_policy,
+                                'order': i,
+                                'priority': priority,
+                                'rule_index': i
+                            })
+
+            # Sort by priority, then order, then key
+            pending_changes.sort(key=lambda x: (-x['priority'], x['order'], x['key']))
+
+            for change in pending_changes:
+                key = change['key']
+                value = change['value']
+                merge_policy = change['merge_policy']
+                priority = change['priority']
+                rule_index = change['rule_index']
+
+                old_value = new_state.get(key)
+
+                if merge_policy == 'append':
+                    if not isinstance(new_state.get(key), list):
+                        new_state[key] = []
+                    if isinstance(value, list):
+                        for v in value:
+                            if v not in new_state[key]:
+                                new_state[key].append(v)
+                                changed = True
+                    else:
+                        if value not in new_state[key]:
+                            new_state[key].append(value)
+                            changed = True
+
+                else:  # replace (default)
+                    if old_value is None:
+                        new_state[key] = value
+                        changed = True
+                    elif old_value != value:
+                        # Conflict: different value already set
+                        conflicts.append({
+                            "field": key,
+                            "old": old_value,
+                            "new": value,
+                            "priority": priority,
+                            "rule": rule_index
                         })
-        
-        # Apply changes deterministically
-        pending_changes.sort(key=lambda x: (x['order'], x['key']))
-        
-        for change in pending_changes:
-            self._apply_change(new_state, change)
-        
-        # Add rule audit
+                        # Only overwrite if new rule has strictly higher priority
+                        # Otherwise, keep old value
+                        prev_priority = 0
+                        for c in total_changes:
+                            if c['key'] == key:
+                                prev_priority = c['priority']
+                        if priority > prev_priority:
+                            new_state[key] = value
+                            changed = True
+
+                total_changes.append(change)
+
+        if iteration >= max_iterations:
+            new_state.setdefault('errors', []).append(
+                "RuleEngine: max iterations reached (possible loop)"
+            )
+
+        # Add conflict logs to errors
+        for conflict in conflicts:
+            new_state.setdefault('errors', []).append(
+                f"Conflict on '{conflict['field']}': {conflict['old']} → {conflict['new']} (rule {conflict['rule']}, priority {conflict['priority']})"
+            )
+
+        # Add audit info
         audit = {
             'rules_hash': self.rules_hash,
             'input_hash': sha3_256_hex(json.dumps(canonicalize(input_data), sort_keys=True)),
             'output_hash': sha3_256_hex(json.dumps(canonicalize(new_state), sort_keys=True)),
-            'rules_applied': len([c for c in pending_changes])
+            'rules_applied': len(total_changes),
+            'iterations': iteration,
+            'conflicts': len(conflicts)
         }
-        
+
         return {**new_state, '_rule_audit': audit}
-    
+           
     def _apply_change(self, state: dict, change: dict):
         """Apply a single state change"""
         key = change['key']

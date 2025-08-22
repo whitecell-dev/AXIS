@@ -1,0 +1,42 @@
+{
+  "age": 25,
+  "role": "admin",
+  "name": "Alice",
+  "timestamp": "2025-08-22T00:21:38.196059",
+  "source": "normalized",
+  "_pipe_audit": {
+    "pipeline_hash": "187b3a2c9409392a67cc70912e6e3cc812158e8ccba835d243fd4afd5f80319d",
+    "input_hash": "6396997c48fd54625c6e74069257723410aaed7d41620acf47b98d24958bf5e7",
+    "output_hash": "5c2f95a90b245431664664da0638670d6bf2ef732883e844c520ac916a0b3f52"
+  },
+  "computed": {},
+  "errors": [
+    "Conflict on 'account_status': active \u2192 verified_admin (rule 6, priority 10)",
+    "Conflict on 'account_status': verified_admin \u2192 active (rule 7, priority 0)",
+    "Conflict on 'account_status': verified_admin \u2192 active (rule 7, priority 0)"
+  ],
+  "benefits": [
+    "voting",
+    "employment",
+    "contracts"
+  ],
+  "category": "adult",
+  "access_level": "full",
+  "permissions": [
+    "read",
+    "write",
+    "admin",
+    "delete"
+  ],
+  "account_status": "verified_admin",
+  "priority_support": true,
+  "risk_score": 1,
+  "_rule_audit": {
+    "rules_hash": "93b472eea6d5e117f15a3c76c890b80e2b5293c493ccdf2f76da5ae512770758",
+    "input_hash": "e18282a2f662e6242439076f73ea2b76e840ceadbf6ec3b04abf71326a2ecef0",
+    "output_hash": "a59c535a40ff38b6eb9e1cbe213cc9271d56102f1ecc4371dc9f68ed69a5da25",
+    "rules_applied": 21,
+    "iterations": 3,
+    "conflicts": 3
+  }
+}

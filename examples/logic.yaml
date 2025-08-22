@@ -1,0 +1,62 @@
+component: UserProcessing
+rules:
+  # Rule 1: Determine user category based on age
+  - if: "age >= 18 and age < 65"
+    then:
+      category: "adult"
+      benefits: ["voting", "employment", "contracts"]
+      
+  - if: "age >= 65"
+    then:
+      category: "senior"
+      benefits: ["voting", "employment", "contracts", "senior_discount"]
+      
+  - if: "age < 18"
+    then:
+      category: "minor"
+      benefits: ["education"]
+      errors+: ["Account requires guardian approval"]
+
+  # Rule 2: Set permissions based on role
+  - if: "role == 'admin'"
+    then:
+      permissions: ["read", "write", "admin", "delete"]
+      access_level: "full"
+      
+  - if: "role == 'user'"
+    then:
+      permissions: ["read", "write"]
+      access_level: "standard"
+      
+  - if: "role == 'guest'"
+    then:
+      permissions: ["read"]
+      access_level: "limited"
+
+  # Rule 3: Account status validation
+  - if: "category == 'adult' and role == 'admin'"
+    then:
+      account_status: "verified_admin"
+      priority_support: true
+    priority: 10
+
+  - if: "category == 'minor'"
+    then:
+      account_status: "restricted"
+      requires_supervision: true
+    else:
+      account_status: "active"
+    priority: 0
+
+  # Rule 4: Compute risk score
+  - if: "role == 'admin' and category == 'adult'"
+    then:
+      risk_score: 1
+      
+  - if: "role == 'user'"
+    then:
+      risk_score: 3
+      
+  - if: "role == 'guest' or category == 'minor'"
+    then:
+      risk_score: 5
