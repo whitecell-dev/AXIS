@@ -1,0 +1,227 @@
+{
+  "version": "axis@1.0.0",
+  "description": "Golden master test vectors for cross-platform implementation verification",
+  "canonicalization_tests": [
+    {
+      "name": "basic_types",
+      "input": {"int": 42, "float": 3.14, "bool": true, "null": null, "string": "hello"},
+      "canonical_json": "{\"bool\":true,\"float\":3.14,\"int\":42,\"null\":null,\"string\":\"hello\"}",
+      "hash": "a1b2c3d4e5f6789..."
+    },
+    {
+      "name": "nested_objects",
+      "input": {"b": {"z": 1, "a": 2}, "a": {"c": 3, "b": 4}},
+      "canonical_json": "{\"a\":{\"b\":4,\"c\":3},\"b\":{\"a\":2,\"z\":1}}",
+      "hash": "b2c3d4e5f6789..."
+    },
+    {
+      "name": "arrays",
+      "input": {"items": [3, 1, 2], "mixed": [true, "text", 42]},
+      "canonical_json": "{\"items\":[3,1,2],\"mixed\":[true,\"text\",42]}",
+      "hash": "c3d4e5f6789..."
+    },
+    {
+      "name": "unicode",
+      "input": {"emoji": "🚀", "chinese": "你好", "arabic": "مرحبا"},
+      "canonical_json": "{\"arabic\":\"مرحبا\",\"chinese\":\"你好\",\"emoji\":\"🚀\"}",
+      "hash": "d4e5f6789..."
+    }
+  ],
+  "pipes_tests": [
+    {
+      "name": "simple_rename",
+      "config": {
+        "pipeline": [
+          {"rename": {"old_name": "new_name"}}
+        ]
+      },
+      "input": {"old_name": "Alice", "age": 25},
+      "expected_output": {"new_name": "Alice", "age": 25},
+      "payload_hash": "e5f6789abc...",
+      "config_hash": "f6789abcde..."
+    },
+    {
+      "name": "type_validation",
+      "config": {
+        "pipeline": [
+          {"validate": {"age": "int", "active": "bool"}}
+        ]
+      },
+      "input": {"age": "25", "active": "true", "name": "Alice"},
+      "expected_output": {"age": 25, "active": true, "name": "Alice"},
+      "payload_hash": "6789abcdef...",
+      "config_hash": "789abcdef1..."
+    },
+    {
+      "name": "template_transform",
+      "config": {
+        "pipeline": [
+          {"transform": {"full_name": "{{first}} {{last}}"}}
+        ]
+      },
+      "input": {"first": "Alice", "last": "Smith", "age": 30},
+      "expected_output": {"first": "Alice", "last": "Smith", "age": 30, "full_name": "Alice Smith"},
+      "payload_hash": "89abcdef12...",
+      "config_hash": "9abcdef123..."
+    }
+  ],
+  "rules_tests": [
+    {
+      "name": "simple_condition",
+      "config": {
+        "component": "TestRules",
+        "rules": [
+          {"if": "age >= 18", "then": {"status": "adult"}}
+        ]
+      },
+      "input": {"age": 25, "name": "Alice"},
+      "expected_output": {"age": 25, "name": "Alice", "status": "adult"},
+      "payload_hash": "abcdef1234...",
+      "config_hash": "bcdef12345..."
+    },
+    {
+      "name": "boolean_logic",
+      "config": {
+        "component": "TestRules",
+        "rules": [
+          {"if": "age >= 18 and role == 'admin'", "then": {"permissions": ["read", "write", "admin"]}}
+        ]
+      },
+      "input": {"age": 30, "role": "admin", "name": "Bob"},
+      "expected_output": {"age": 30, "role": "admin", "name": "Bob", "permissions": ["read", "write", "admin"]},
+      "payload_hash": "cdef123456...",
+      "config_hash": "def1234567..."
+    },
+    {
+      "name": "array_append",
+      "config": {
+        "component": "TestRules", 
+        "rules": [
+          {"if": "level > 5", "then": {"tags+": ["advanced"]}},
+          {"if": "score >= 90", "then": {"tags+": ["high_scorer"]}}
+        ]
+      },
+      "input": {"level": 6, "score": 95, "tags": ["player"]},
+      "expected_output": {"level": 6, "score": 95, "tags": ["player", "advanced", "high_scorer"]},
+      "payload_hash": "ef12345678...",
+      "config_hash": "f123456789..."
+    },
+    {
+      "name": "else_branch",
+      "config": {
+        "component": "TestRules",
+        "rules": [
+          {"if": "age >= 18", "then": {"status": "adult"}, "else": {"status": "minor"}}
+        ]
+      },
+      "input": {"age": 16, "name": "Charlie"},
+      "expected_output": {"age": 16, "name": "Charlie", "status": "minor"},
+      "payload_hash": "123456789a...",
+      "config_hash": "23456789ab..."
+    }
+  ],
+  "adapters_tests": [
+    {
+      "name": "echo_substitution",
+      "config": {
+        "adapters": [
+          {"name": "greet", "command": "echo", "args": ["Hello {{name}}!"]}
+        ]
+      },
+      "input": {"name": "Alice", "age": 25},
+      "expected_command": "echo Hello Alice!",
+      "config_hash": "3456789abc..."
+    },
+    {
+      "name": "template_filters",
+      "config": {
+        "adapters": [
+          {"name": "json_output", "command": "echo", "args": ["{{data|json}}"]}
+        ]
+      },
+      "input": {"data": {"key": "value with spaces"}},
+      "expected_command": "echo {\"key\":\"value with spaces\"}",
+      "config_hash": "456789abcd..."
+    }
+  ],
+  "security_tests": [
+    {
+      "name": "command_injection_prevention",
+      "config": {
+        "adapters": [
+          {"name": "safe_echo", "command": "echo", "args": ["{{input}}"]}
+        ]
+      },
+      "malicious_input": {"input": "; rm -rf /"},
+      "should_fail": true,
+      "expected_error": "Unsafe characters in unfiltered substitution"
+    },
+    {
+      "name": "sql_injection_prevention",
+      "config": {
+        "adapters": [
+          {"name": "safe_query", "command": "sqlite3", "args": ["db.sqlite", "SELECT * FROM users WHERE name = '{{name|sql}}'"]}
+        ]
+      },
+      "malicious_input": {"name": "'; DROP TABLE users; --"},
+      "expected_command": "sqlite3 db.sqlite SELECT * FROM users WHERE name = '''; DROP TABLE users; --'"
+    },
+    {
+      "name": "allowlist_enforcement",
+      "config": {
+        "adapters": [
+          {"name": "blocked_command", "command": "rm", "args": ["-rf", "/"]}
+        ]
+      },
+      "input": {},
+      "should_fail": true,
+      "expected_error": "command 'rm' not in allowlist"
+    }
+  ],
+  "determinism_tests": [
+    {
+      "name": "identical_inputs_identical_outputs",
+      "description": "Same config + same input must produce identical hashes across runs",
+      "runs": 10,
+      "config": {
+        "pipeline": [
+          {"rename": {"user_name": "name"}},
+          {"validate": {"age": "int"}}
+        ]
+      },
+      "input": {"user_name": "Alice", "age": "25"},
+      "expected_hash_stability": true
+    }
+  ],
+  "error_cases": [
+    {
+      "name": "invalid_json",
+      "input_string": "{invalid json}",
+      "expected_error": "JSON decode error"
+    },
+    {
+      "name": "unknown_pipe_operation",
+      "config": {"pipeline": [{"unknown_op": {}}]},
+      "input": {"test": true},
+      "expected_error": "unknown step type 'unknown_op'"
+    },
+    {
+      "name": "invalid_condition_syntax",
+      "config": {
+        "component": "Test",
+        "rules": [{"if": "age >= and role", "then": {"error": true}}]
+      },
+      "input": {"age": 25},
+      "expected_error": "Failed to parse condition"
+    },
+    {
+      "name": "condition_too_long",
+      "config": {
+        "component": "Test", 
+        "rules": [{"if": "x".repeat(5000) + " == 1", "then": {"error": true}}]
+      },
+      "input": {"x": 1},
+      "expected_error": "Condition too long"
+    }
+  ]
+}

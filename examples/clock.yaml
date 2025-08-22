@@ -1,0 +1,39 @@
+# AXIS Clock Adapter
+# Injects deterministic time data into the pipeline
+# Use this instead of now() in PIPES for reproducible builds
+
+adapters:
+  - name: inject_current_time
+    command: date
+    args: ["+%Y-%m-%dT%H:%M:%SZ"]
+    output_transform: |
+      {
+        "_axis": {
+          "clock": "{{stdout.output|trim}}",
+          "timestamp": "{{stdout.output|trim|to_epoch}}"
+        }
+      }
+
+  - name: inject_custom_time
+    command: echo
+    args: ["{{_time_override|default:{{current_iso}}}}"]
+    output_transform: |
+      {
+        "_axis": {
+          "clock": "{{stdout.output|trim}}",
+          "source": "override"
+        }
+      }
+
+# Usage examples:
+# 
+# 1. Current time injection:
+#    cat data.json | axis_adapters.py exec clock.yaml | axis_pipes.py run enrich_with_clock.yaml
+#
+# 2. Deterministic time for testing:
+#    echo '{"_time_override": "2024-01-01T00:00:00Z"}' | axis_adapters.py exec clock.yaml
+#
+# 3. In PIPES config, use:
+#    enrich:
+#      timestamp: "{{_axis.clock}}"
+#      epoch: "{{_axis.timestamp}}"
