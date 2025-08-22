@@ -1,0 +1,12 @@
+{
+  "name": "Wireless Headphones",
+  "category": "Electronics",
+  "price": 89.99,
+  "rating": 4.7,
+  "price_tier": "standard",
+  "recommendation_score": 10,
+  "status": "recommended",
+  "processed_at": "2025-08-22T03:06:11.091552",
+  "featured": True,
+  "high_value": False
+}

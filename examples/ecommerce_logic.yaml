@@ -1,0 +1,68 @@
+component: ProductAnalysis
+rules:
+  # Price tier classification (mutually exclusive with priorities)
+  - if: "price >= 100.0"
+    priority: 10
+    then:
+      price_tier: "premium"
+      discount_eligible: false
+      vip_shipping: true
+      
+  - if: "price >= 20.0 and price < 100.0"
+    priority: 5
+    then:
+      price_tier: "standard"
+      discount_eligible: false
+      
+  - if: "price < 20.0"
+    priority: 1
+    then:
+      price_tier: "budget"
+      discount_eligible: true
+
+  # Rating-based recommendations (higher priority, mutually exclusive)
+  - if: "rating >= 4.5"
+    priority: 20
+    then:
+      recommendation_score: 10
+      featured: true
+      status: "recommended"
+      
+  - if: "rating >= 3.5 and rating < 4.5"
+    priority: 15
+    then:
+      recommendation_score: 7
+      featured: false
+      status: "approved"
+      
+  - if: "rating < 3.5"
+    priority: 10
+    then:
+      recommendation_score: 3
+      featured: false
+      status: "needs_review"
+      errors+: ["Low customer rating detected"]
+
+  # Category-specific rules (additive, no conflicts)
+  - if: "category == 'electronics' and price_tier == 'premium'"
+    then:
+      warranty_extended: true
+      tech_support: true
+      
+  - if: "category == 'books' and rating >= 4.0"
+    then:
+      book_club_eligible: true
+      
+  # High-value item detection (separate field, no conflicts)
+  - if: "price >= 200.0"
+    then:
+      high_value: true
+      requires_approval: true
+    else:
+      high_value: false
+
+  # Remove initial defaults from pipes to avoid conflicts
+  - if: "price_tier == 'unknown'"
+    priority: 0
+    then:
+      price_tier: "unclassified"

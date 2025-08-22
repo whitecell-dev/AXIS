@@ -1,0 +1,59 @@
+adapters:
+  # Safe logging - just echo to console with proper template substitution
+  - name: log_product_analysis
+    command: echo
+    args: 
+      - "📦 Product: {{name}} | Category: {{category}} | Price: ${{price}} | Tier: {{price_tier}} | Score: {{recommendation_score}}/10 | Status: {{status}}"
+
+  # Create output directory structure safely
+  - name: create_output_dirs
+    command: mkdir
+    args:
+      - "-p"
+      - "output/products"
+
+  # Save product data as JSON (input template feature)
+  - name: save_product_json
+    command: bash
+    args:
+      - "-c"
+      - "mkdir -p output/products && filename=$(echo '{{name}}' | tr ' ' '_' | tr -cd '[:alnum:]_-') && cat > \"output/products/${filename}_analysis.json\""
+    input: |
+      {
+        "name": "{{name}}",
+        "category": "{{category}}",
+        "price": {{price}},
+        "rating": {{rating}},
+        "price_tier": "{{price_tier}}",
+        "recommendation_score": {{recommendation_score}},
+        "status": "{{status}}",
+        "processed_at": "{{processed_at}}",
+        "featured": {{featured}},
+        "high_value": {{high_value}}
+      }
+
+  # Create CSV report header if file doesn't exist, then append data
+  - name: update_csv_report
+    command: bash
+    args:
+      - "-c"
+      - "mkdir -p output && [ ! -f output/products_report.csv ] && echo 'timestamp,name,category,price,rating,tier,score,status' > output/products_report.csv; echo '{{processed_at}},\"{{name}}\",{{category}},{{price}},{{rating}},{{price_tier}},{{recommendation_score}},{{status}}' >> output/products_report.csv"
+
+  # Show analysis summary
+  - name: show_analysis_summary
+    command: echo
+    args:
+      - "✅ Analysis complete: {{display_name}} → {{status}} (Score: {{recommendation_score}}/10)"
+
+  # Conditional high-value alert
+  - name: high_value_alert
+    command: bash
+    args:
+      - "-c"
+      - "if [ '{{high_value}}' = 'true' ]; then echo '🚨 HIGH VALUE ITEM: {{name}} requires approval (${{price}})'; fi"
+
+  # Show timestamp for audit trail
+  - name: audit_timestamp
+    command: date
+    args:
+      - "+Processing completed at %Y-%m-%d %H:%M:%S"

@@ -1,0 +1,20 @@
+pipeline:
+  # Clean and standardize product data
+  - rename:
+      product_name: name
+      product_price: price
+      product_category: category
+      customer_rating: rating
+      
+  - validate:
+      price: float
+      rating: float
+      
+  - enrich:
+      processed_at: now()
+      # Remove defaults that rules will set to avoid conflicts
+      # price_tier, recommendation_score, status will be set by rules
+      
+  - transform:
+      display_name: "{{name}} ({{category}})"
+      price_formatted: "${{price}}"

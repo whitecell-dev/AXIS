@@ -1,158 +1,187 @@
-# The AXIS Constitution
-*The atomic insight that must never be lost*
+# **AXIS Constitution v0.1**
 
-## The Discovery
+*Foundational Protocol for Verifiable State Transformations*
 
-**Just because you CAN do everything in one language doesn't mean you SHOULD.**
+---
 
-Frontend developers learned this decades ago:
-- **HTML** = Structure (what)
-- **CSS** = Presentation (how it looks)  
-- **JavaScript** = Behavior (how it acts)
+## **1. Purpose**
 
-Backend developers forgot this lesson. We jammed everything into imperative code:
-- Logic buried in functions
-- Rules hidden in decorators
-- Truth scattered across frameworks
-- Intent obscured by implementation
+AXIS defines a universal model of computation based on **verifiable state transformations**.
+It establishes conventions for declaring, executing, and auditing transformations using a minimal set of primitives.
 
-**AXIS rediscovered the separation:**
-- **YAML** = Intent (human-readable λ-terms)
-- **Python** = Execution (how to make it happen)
-- **LLM** = Fallback (when rules aren't enough)
+AXIS is not a product or framework.
+It is a **standard**: a constitutional layer for deterministic, auditable computation.
 
-## The Atomic Split
+---
 
-**Before:** Everything in code
-```python
-@app.route("/approve")
-@validate_schema(LoanSchema)
-def approve_loan(data):
-    if data.credit_score > 700 and data.income > 50000:
-        if data.debt_ratio < 0.4:
-            return {"approved": True}
-    return {"approved": False}
+## **2. Core Model**
+
+AXIS execution is modeled as:
+
+```
+JSON → α-conversion (Pipes) → β-reduction (Rules) → Side Effects (Adapters)
 ```
 
-**After:** Logic separated from execution
+* **Input:** JSON state
+* **Process:** Transformation pipelines defined in YAML
+* **Output:** JSON state with cryptographic audit trail
+
+The atomic unit of AXIS is the **Verifiable State Transformation (VST)**:
+a pure function applied to state, producing new state with reproducible proof.
+
+---
+
+## **3. Design Principles**
+
+### 3.1 Determinism
+
+* Canonicalize all inputs before processing.
+* No non-finite values (`NaN`, `Infinity`).
+* Consistent key ordering and cross-platform reproducibility.
+
+### 3.2 Purity & Separation
+
+* **Pipes:** Data normalization, no side effects.
+* **Rules:** Pure logic transformations, no side effects.
+* **Adapters:** Controlled side effects, fully audited.
+
+### 3.3 Trust & Auditability
+
+* Every transformation is content-addressed (`SHA3-256`).
+* Input/output hashes must be logged at each stage.
+* Conflicts and errors must be accumulated, not hidden.
+
+---
+
+## **4. Configuration Standards**
+
+### 4.1 Pipes (α-conversion)
+
 ```yaml
-# rules.yaml - Human-readable intent
-- if: "credit_score > 700 and income > 50000 and debt_ratio < 0.4"
-  then: {approved: true}
-- else: 
-  then: {approved: false}
+pipeline:
+  - rename: {old_field: new_field}
+  - validate: {field: "type"}
+  - enrich: {field: "value"}
+  - transform: {field: "{{template}}"}
+  - extract: {new_key: "path"}
+  - filter: {field: {gt: 100}}
 ```
 
-```python
-# app.py - Minimal execution
-engine = RuleEngine("rules.yaml")
-result = engine.run(request_data)
-```
----
+Rules:
 
-Why This Works (λ-calculus, plain English)
-
-AXIS rules are just pure functions written for humans.
-
-    YAML rule = λ-function over your input:
-
-    - if: "credit_score > 700 and income > 50000 and debt_ratio < 0.4"
-      then: {approved: true}
-    - else:
-      then: {approved: false}
-
-        Read as: λinput. if condition(input) then {approved: true} else {approved: false}
-
-    Reducer = β-reduction. It substitutes real input into that expression and normalizes it to a plain data result. No side effects, no hidden state.
-
-    Adapters = effects (after). Once you have a result, then do I/O (DB writes, emails). Never during reduction.
-
-Why it matters:
-
-    Predictable (same input → same output)
-
-    Composable (rules remain independent)
-
-    Portable (runs on Python today, WASM/GPU tomorrow)
-
-    Explainable (you can trace every decision in YAML)
-
-Ten-second test: If a rule isn’t a pure function of its input, it doesn’t belong in YAML.
-
-## The Constitutional Principles
-
-### 1. **Logic Lives in YAML**
-- Rules, schemas, conditions = YAML
-- If a human needs to understand the decision, it goes in YAML
-- If it changes business logic, it should be changeable without code deployment
-
-### 2. **Python Stays Minimal**
-- Execution, evaluation, I/O = Python
-- No business logic in Python functions
-- Each Python file should do ONE thing well
-
-### 3. **AI Enhances, Never Replaces**
-- LLM fallback is optional, never required
-- AI suggestions must be validated by rules
-- Human intent (YAML) always has final authority
-
-### 4. **Transparency Over Magic**
-- No hidden frameworks or decorators
-- Every decision should be traceable
-- The source of truth is readable by non-programmers
-
-### 5. **Composability Over Monoliths**
-- Small tools that work together
-- Rules can be combined, not just replaced
-- Each component can be swapped independently
-
-## The Complexity Budget
-
-To preserve the atomic insight, AXIS must never exceed:
-
-- **300 lines** per Python file
-- **50 rules** per YAML file  
-- **3 dependencies** for core functionality
-- **1 page** to explain any concept
-
-When you hit these limits, split don't expand.
-
-## The Test
-
-Before adding any feature, ask:
-
-1. **Could this be YAML instead of code?**
-2. **Does this make the intent more or less clear?**
-3. **Would a non-programmer understand this?**
-4. **Can I explain this in one sentence?**
-
-If any answer is no, simplify or split.
-
-## The Warning
-
-The forces that created bloated frameworks will try to recreate them in AXIS:
-- "Let's add a plugin system"
-- "We need more advanced templating"
-- "This needs better abstractions"
-
-**Resist.** 
-
-The power is in the simplicity.
-The insight is in the separation.
-The magic is that there is no magic.
-
-## The Mission
-
-AXIS exists to prove that:
-- **Declarative intent** can drive imperative execution
-- **Simple tools** can solve complex problems
-- **Human-readable logic** can power critical systems
-- **Separation of concerns** creates more powerful software
-
-This is not a framework.
-This is a protocol.
-This is how software should work.
+* Deterministic only.
+* Use `now()` or `timestamp()` for temporal enrichment.
+* Avoid defaults that Rules will override.
 
 ---
 
-*"We split the atom of software complexity and found that simplicity was the most powerful force inside."*
+### 4.2 Rules (β-reduction)
+
+```yaml
+component: ComponentName
+rules:
+  - if: "condition"
+    priority: 10
+    then: {field: value}
+    else: {field: other}
+```
+
+Rules:
+
+* Conditions parsed into restricted AST (no arbitrary eval).
+* Priorities resolve conflicts; higher priority wins.
+* Use `field+: [item]` for additive list operations.
+* Conflict attempts must be logged in structured `errors[]`.
+
+---
+
+### 4.3 Adapters (Side Effects)
+
+```yaml
+adapters:
+  - name: descriptive_name
+    command: unix_command
+    args: ["--flag", "{{template}}"]
+    input: "{{stdin_template}}"
+```
+
+Rules:
+
+* Adapters must run in **dry-run mode by default**; execution requires explicit `--exec`.
+* File paths must be sandboxed under a declared root.
+* Idempotence: identical adapter runs must be skipped unless `--force`.
+* Audit-first, execute-second: intent is always logged before execution.
+
+---
+
+## **5. Security Requirements**
+
+* No `eval()` or dynamic code execution.
+* All conditions whitelisted in AST parser.
+* File operations restricted to safe directories.
+* All subprocesses limited by timeout (30s default).
+* All adapter outputs must be captured and logged.
+
+---
+
+## **6. Error & Conflict Handling**
+
+* Errors accumulate into an `errors[]` array; system must not fail silently.
+* Conflicts resolved by priority. If equal, first-writer wins, later attempts are logged.
+* Example structured conflict:
+
+  ```json
+  {"field": "status", "old": "active", "new": "verified_admin", "rule": 7, "priority": 0}
+  ```
+
+---
+
+## **7. Audit Trails**
+
+Every transformation appends `_audit` metadata:
+
+* **Pipes:** `{pipeline_hash, input_hash, output_hash}`
+* **Rules:** `{rules_hash, input_hash, output_hash, conflicts, iterations}`
+* **Adapters:** `{config_hash, input_hash, execution_log}`
+
+Audit trails must be immutable and reproducible.
+
+---
+
+## **8. Testing & Validation**
+
+* Golden vectors: canonical input/output pairs for regression.
+* Deterministic tests: fixed timestamps, canonical ordering.
+* Edge cases: nulls, empty datasets, large numbers, Unicode.
+* Conflict tests: deliberate overlapping rules to validate logging.
+
+---
+
+## **9. Scaling Path**
+
+AXIS is the **reference implementation** of the Verifiable State Transformation.
+
+* **AXIS (Now):** JSON-native shell, YAML conventions, auditable transformations.
+* **KERN (Next):** Compiled execution (WASM/native) for speed & portability.
+* **MNEME (Future):** Distributed, content-addressable memory for state histories.
+
+---
+
+## **10. Constitutional Clause**
+
+AXIS must remain:
+
+* **Minimal** (no unnecessary primitives).
+* **Deterministic** (same input → same output).
+* **Auditable** (all transformations logged & hashed).
+* **Composable** (pipelines must chain cleanly in the Unix spirit).
+
+Any extension (e.g., KERN, MNEME) must respect these invariants.
+
+---
+
+**This document is not documentation. It is law.**
+AXIS is not a product; it is a **constitutional protocol for computation.**
+
+
+
