@@ -147,20 +147,20 @@ def validate_axis_philosophy():
         print(f"📊 {component}: {loc} LOC")
         
         if loc > 200:
-            print(f"⚠️  {component} exceeds 200 LOC limit (AXIS-PY philosophy)")
+            print(f" {component} exceeds 200 LOC limit (AXIS-PY philosophy)")
     
     # Verify zero core dependencies
     if PACKAGE_INFO["install_requires"]:
-        print(f"⚠️  Core has dependencies (violates AXIS-PY philosophy)")
+        print(f" Core has dependencies (violates AXIS-PY philosophy)")
     else:
-        print(f"✅ Zero core dependencies (follows AXIS-PY philosophy)")
+        print(f"Zero core dependencies (follows AXIS-PY philosophy)")
 
 def main():
     """Main setup function"""
     
     # Show AXIS philosophy info during installation
-    print("🚀 AXIS: React for Deterministic Reasoning")
-    print("📏 AXIS-PY Philosophy: Every line of code is a liability until proven otherwise")
+    print("AXIS: React for Deterministic Reasoning")
+    print("AXIS-PY Philosophy: Every line of code is a liability until proven otherwise")
     print("")
     
     # Validate philosophy compliance during development
@@ -175,17 +175,17 @@ def main():
     # Show post-install info
     if "install" in sys.argv:
         print("")
-        print("✅ AXIS installation complete!")
+        print("AXIS installation complete!")
         print("")
-        print("🔗 Quick start:")
+        print("Quick start:")
         print("   echo '{\"name\": \"Alice\", \"age\": \"25\"}' | axis-pipes run config.yaml")
         print("   echo '{\"age\": 25, \"role\": \"admin\"}' | axis-rules apply logic.yaml")
         print("   echo '{\"user\": \"alice\"}' | axis-adapters exec save.yaml")
         print("")
-        print("📚 Documentation: https://axis-docs.example.com")
-        print("🐛 Issues: https://github.com/your-org/axis/issues")
+        print("Documentation: https://axis-docs.example.com")
+        print("Issues: https://github.com/your-org/axis/issues")
         print("")
-        print("🎯 The terminal just got a nervous system for structured data!")
+        print("The terminal just got a nervous system for structured data!")
 
 if __name__ == "__main__":
     main()
