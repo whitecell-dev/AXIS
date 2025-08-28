@@ -1,362 +1,197 @@
-# AXIS: React for Deterministic Reasoning
+# AXIS: Deterministic JSON Math Engine
 
-> *"We split the atom of software complexity and found that simplicity was the most powerful force inside."*
+**"LLMs guess; AXIS proves."**
 
-**AXIS is Unix pipes for structured data.** Just like React revolutionized frontend development with `UI = f(state)`, AXIS revolutionizes terminal computing with `Logic = f(rules, state)`.
+AXIS is a deterministic "left brain" that executes human-readable YAML/JSON pipelines using relational algebra and λ-calculus principles. While LLMs excel at probabilistic creativity, AXIS provides the mathematical certainty needed to collapse fuzziness into verifiable facts. Every computation produces cryptographic receipts (SHA3-256) for full audit trails.
 
-**Write business logic once in human-readable YAML. Execute everywhere with cryptographic verification.**
+Built on relational algebra primitives (σ selection, π projection, ⨝ joins, ∪ union, − difference) with controlled side effects through adapters, AXIS transforms JSON data streams deterministically while maintaining Unix composability.
 
-## **The Core Insight**
+## Why Now?
 
-AXIS completes what Unix started—universal composition of tools through structured data streams.
+Stacking probability on probability is fragile. Modern AI workflows need a deterministic foundation that can:
 
-| Unix (1970s) | AXIS (2025) |
-|---------------|-------------|
-| `cat file.txt \| grep pattern \| sort` | `cat data.json \| axis-pipes run clean.yaml \| axis-rules apply logic.yaml` |
-| Text streams | **Structured streams** |
-| String manipulation | **Meaning-aware processing** |
-| Manual verification | **Cryptographic verification** |
+- **Verify LLM outputs** with mathematical certainty
+- **Audit complex data transformations** with cryptographic receipts  
+- **Compose reliably** across systems and time
+- **Scale reasoning** beyond what fits in context windows
 
-## **Quick Start**
+AXIS provides this mathematical substrate while remaining human-readable and LLM-authorable.
 
-### Installation
+## How It Works
+
+### Data Model
+- **Input/Output**: JSON streams (single objects or arrays)
+- **Pipelines**: Human-readable YAML configurations
+- **Operations**: Relational algebra primitives + functional transformations
+- **Receipts**: SHA3-256 hashes of canonicalized computations
+
+### Core Guarantees
+- **Deterministic**: Same input + pipeline = same output + hash
+- **Auditable**: Every operation produces verifiable receipts
+- **Safe**: AST-based predicate evaluation with sandboxed expressions
+- **Composable**: Unix pipes + JSON = universal interface
+
+## Quickstart
+
+### Selection (σ) - Filter Records
 ```bash
-pip install axis-py
-# Or from source:
-git clone https://github.com/your-org/axis
-cd axis && pip install -e .
-```
+echo '[{"name":"Alice","age":25},{"name":"Bob","age":17}]' | \
+python -m axis_pipes run examples/adults.yaml
+examples/adults.yaml:
 
-### Your First Pipeline
-```bash
-# 1. Create sample data
-echo '{"user_name": "Alice", "age": "25", "role": "admin"}' > user.json
-
-# 2. Normalize data (PIPES)
-cat user.json | python axis_pipes.py run examples/normalize.yaml
-
-# 3. Apply business logic (RULES)  
-cat user.json | python axis_pipes.py run examples/normalize.yaml | python axis_rules.py apply examples/logic.yaml
-
-# 4. Execute side effects (ADAPTERS)
-cat user.json | python axis_pipes.py run examples/normalize.yaml | python axis_rules.py apply examples/logic.yaml | python axis_adapters.py exec examples/save.yaml
-```
-
-### Example Configs
-
-**normalize.yaml (PIPES)**
-```yaml
 pipeline:
-  - rename: {user_name: "name", years: "age"}
-  - validate: {age: "int", active: "bool"}  
-  - enrich: {timestamp: "now()"}
-```
+  - select: "age >= 18"
+  - project: ["name", "age"]
 
-**logic.yaml (RULES)**
-```yaml
-component: UserAccess
-rules:
-  - if: "age >= 18"
-    then: {status: "adult", can_vote: true}
-  - if: "role == 'admin'"  
-    then: {permissions: ["read", "write", "admin"]}
-```
+Output:
+{
+  "data": [{"name": "Alice", "age": 25}],
+  "_pipe_audit": {
+    "pipeline_hash": "a1b2c3...",
+    "input_hash": "d4e5f6...",
+    "output_hash": "g7h8i9...",
+    "ra_audit": {"operations_count": 2}
+  }
+}
+Join (⨝) - Combine Datasets
+echo '[{"user":"alice","dept_id":"eng"}]' | \
+python -m axis_pipes run examples/user_departments.yaml
 
-**save.yaml (ADAPTERS)**
-```yaml
-adapters:
-  - name: "log_user"
-    command: "echo" 
-    args: ["Processing: {{name}} ({{status}})"]
-  - name: "save_db"
-    command: "sqlite3"
-    args: ["users.db", "INSERT INTO users VALUES ('{{name}}', {{age}}, '{{status}}');"]
-```
+examples/user_departments.yaml:
+structures:
+  departments:
+    type: hashmap
+    key: dept_id
+    materialize: from_data
+    data:
+      - {dept_id: "eng", dept_name: "Engineering"}
+      - {dept_id: "sales", dept_name: "Sales"}
 
-## **The Three Components**
+pipeline:
+  - join:
+      on: dept_id  
+      using: departments
+  - project: ["left_user", "right_dept_name"]
 
-### **🔀 AXIS-PIPES (α-conversion)**
-*Data normalization and validation*
+CLI Commands
+Pipeline Engine
 
-```bash
-# Clean messy API responses
-curl api.com/users | axis_pipes.py run normalize_users.yaml
+# Run data transformation pipeline
+python -m axis_pipes run config.yaml [--input file.json] [--output result.json]
 
-# Validate form data
-cat form_data.json | axis_pipes.py run validate_registration.yaml  
+# Validate pipeline without execution  
+python -m axis_pipes validate config.yaml
 
-# Enrich with defaults
-echo '{"name": "Alice"}' | axis_pipes.py run add_defaults.yaml
-```
+# Generate pipeline configuration hash
+python -m axis_pipes hash config.yaml
 
-**What it does:**
-- Rename fields (`user_name` → `name`)
-- Convert types (`"25"` → `25`)
-- Validate data (`email` format checking)
-- Enrich with computed fields
-- Filter unwanted data
+# Dry run (show what would execute)
+python -m axis_pipes run config.yaml --dry-run
 
-### **⚖️ AXIS-RULES (β-reduction)**
-*Pure decision logic and state transformations*
+Rule Engine
+# Apply logical rules with fixpoint iteration
+python -m axis_rules apply rules.yaml [--input facts.json]
 
-```bash
-# Apply business rules
-cat clean_data.json | axis_rules.py apply business_logic.yaml
+# Validate rule configuration
+python -m axis_rules validate rules.yaml
 
-# User permissions
-cat user.json | axis_rules.py apply access_control.yaml
+# Show rule configuration hash
+python -m axis_rules hash rules.yaml
 
-# Pricing logic  
-cat cart.json | axis_rules.py apply discount_rules.yaml
-```
+Adapters (Controlled Side Effects)
+# Execute external commands with RA pre-filtering
+python -m axis_adapters exec adapters.yaml [--input data.json]
 
-**What it does:**
-- If/then conditional logic
-- Pure state transformations  
-- Role-based permissions
-- Complex business rules
-- Error condition handling
+# Validate adapter configuration
+python -m axis_adapters validate adapters.yaml
 
-### **🔌 AXIS-ADAPTERS (monadic effects)**
-*Controlled side effects and external system integration*
+# Show what commands would execute
+python -m axis_adapters exec adapters.yaml --dry-run
 
-```bash
-# Save to database
-cat result.json | axis_adapters.py exec save_to_db.yaml
+Structure Registry
+# Materialize prebuilt data structures
+python -m axis_structures materialize config.yaml
 
-# Send notifications
-cat user.json | axis_adapters.py exec send_welcome_email.yaml
+# Show structure information
+python -m axis_structures info config.yaml [--structure name]
 
-# Update external APIs
-cat order.json | axis_adapters.py exec process_payment.yaml
-```
+# Validate structure references
+python -m axis_structures validate config.yaml --operations pipeline.yaml
 
-**What it does:**
-- Execute Unix commands safely
-- Template-based parameter substitution
-- Database operations (`psql`, `sqlite3`)
-- HTTP requests (`curl`)
-- File operations (`cp`, `mv`)
-- Email/notifications (`mail`)
+Capabilities & Roadmap
+✅ Ready for Production
 
-## **Why AXIS?**
+Relational Algebra: σ (select), π (project), ⨝ (join), ∪ (union), − (difference)
+Enhanced Operations: Semi-join (exists_in), anti-join (not_exists_in)
+Structure Registry: Prebuilt hashmaps, sets, queues with O(1) operations
+Pipeline Engine: Multi-step transformations with audit trails
+Rule Engine: Conditional logic with fixpoint iteration scaffolding
+Adapters: Controlled side effects with timeouts and sandboxing
+Canonicalization: Deterministic JSON normalization + SHA3-256 hashing
 
-### **🔒 Cryptographically Verified**
-Every step includes hash-based audit trails. Same input + same config = mathematically guaranteed identical output.
+🚧 In Development
 
-```bash
-axis_rules.py hash logic.yaml        # abc123...
-axis_rules.py apply logic.yaml data  # Same hash = same behavior everywhere
-```
+Aggregation Grammar: GROUP BY, SUM, COUNT, AVG operations
+Advanced Conflict Resolution: Priority-based rule application
+Schema Validation: Rich type checking and constraints
+Performance Optimization: Query planning and index usage
 
-### **🧠 LLM-Safe by Design**
-```yaml
-# ✅ LLM can generate this safely (declarative YAML)
-rules:
-  - if: "user.subscription == 'premium'"
-    then: {discount: 0.2, features: ["unlimited"]}
+🔮 Future (MNEME/KERN Layers)
 
-# ❌ LLM CANNOT do this (I/O is isolated in adapters)  
-# os.system("rm -rf /")  # Impossible in YAML rules!
-```
+Append-only audit ledger with incremental verification
+Query compilation to WASM/RISC-V targets
 
-### **🔄 Universal Composition**
-```bash
-# Mix AXIS with existing Unix tools
-cat logs.txt | grep ERROR | axis_pipes.py run parse_errors.yaml | axis_rules.py apply severity_logic.yaml | mail admin@company.com
+Safety & Sandboxing
+Expression Security
 
-# Or build pure AXIS pipelines
-cat orders.json | axis_pipes.py run clean.yaml | axis_rules.py apply pricing.yaml | axis_adapters.py exec fulfill.yaml
-```
+AST-only evaluation: No eval() or code injection
+Restricted grammar: Only comparison, logical, and field access operations
+Safe operators: ==, !=, >, <, >=, <=, in, and, or, not
 
-### **🌐 Cross-Platform Ready**
-Same YAML configs work across:
-- **Python** (current implementation)
-- **Rust** (planned - 100x faster)  
-- **JavaScript** (planned - browser execution)
-- **WASM** (planned - universal deployment)
+Adapter Isolation
 
-## **Real-World Examples**
+No shell injection: shell=False for all subprocess calls
+Timeout protection: 30-second default limits
+Template safety: Parameterized substitution prevents injection
+Audit trails: Every external command logged with arguments
 
-### **E-commerce Order Processing**
-```bash
-# Complete order fulfillment pipeline
-curl api.com/orders/123 \
-  | axis_pipes.py run normalize_order.yaml \
-  | axis_rules.py apply inventory_check.yaml \
-  | axis_rules.py apply pricing_logic.yaml \
-  | axis_adapters.py exec charge_payment.yaml \
-  | axis_adapters.py exec send_confirmation.yaml \
-  | axis_adapters.py exec update_inventory.yaml
-```
+Design Principles
 
-### **User Registration**
-```bash
-# Validate and process new users
-cat registration_form.json \
-  | axis_pipes.py run validate_user.yaml \
-  | axis_rules.py apply signup_rules.yaml \
-  | axis_adapters.py exec create_account.yaml \
-  | axis_adapters.py exec send_welcome_email.yaml
-```
+Deterministic Core: Same input always produces same output and hash
+Human-Readable: YAML configs readable by both humans and LLMs
+RA as Periodic Table: Relational algebra provides complete operator set
+Unix Philosophy: JSON streams enable universal composability
+Verifiable by Default: Cryptographic receipts for every computation
+Side-Effect Isolation: Pure RA core + controlled adapters at edges
 
-### **Data ETL Pipeline**
-```bash
-# Extract, transform, load
-cat raw_data.csv \
-  | axis_pipes.py run csv_to_json.yaml \
-  | axis_pipes.py run clean_data.yaml \
-  | axis_rules.py apply business_logic.yaml \
-  | axis_adapters.py exec load_warehouse.yaml
-```
+Installation
+# Install from PyPI (coming soon)
+pip install axis
 
-### **Automated Reports**
-```bash
-# Daily analytics (perfect for cron jobs)
-echo '{"date": "'$(date -I)'"}' \
-  | axis_adapters.py exec fetch_metrics.yaml \
-  | axis_pipes.py run aggregate_data.yaml \
-  | axis_rules.py apply insights.yaml \
-  | axis_adapters.py exec email_report.yaml
-```
-
-## **Built for the AI Era**
-
-AXIS is **LLM-proof infrastructure**:
-
-- **LLMs generate YAML rules** (safe, human-verifiable)  
-- **Adapters handle I/O** (controlled boundaries)
-- **Math handles verification** (hash-based proof of correctness)
-
-No more *"here's 500 lines of Python, good luck!"*—just safe, declarative logic.
-
-## **Architecture: The Lambda Calculus Foundation**
-
-AXIS implements pure λ-calculus for structured data:
-
-```
-Raw Input (JSON)
-      ↓
-α-conversion (PIPES) → Normalize/reshape data  
-      ↓
-β-reduction (RULES) → Apply pure logic
-      ↓  
-α-conversion (PIPES) → Format results
-      ↓
-Effects (ADAPTERS) → Touch the outside world
-      ↓
-Final Output (JSON + Side Effects)
-```
-
-**This is mathematically proven, cross-platform deterministic computation.**
-
-## **Development**
-
-### **Local Setup**
-```bash
-git clone https://github.com/your-org/axis
+# Install from source
+git clone https://github.com/example/axis.git
 cd axis
-pip install -e ".[dev]"
+pip install -e .
 
-# Run tests
-python -m pytest
+# With development dependencies
+pip install -e ".[dev,test]"
 
-# Run demo
-python demo_pipeline.py
-```
-
-### **Project Structure**
-```
-axis/
-├── axis_pipes.py      # Data normalization (α-conversion)
-├── axis_rules.py      # Business logic (β-reduction)  
-├── axis_adapters.py   # Side effects (monadic effects)
-├── demo_pipeline.py   # Complete example
-├── examples/          # Sample configurations
-│   ├── normalize.yaml
-│   ├── logic.yaml
-│   └── save.yaml
-└── tests/            # Test suite
-```
-
-### **Contributing**
-1. Fork the repository
-2. Create a feature branch  
-3. Follow the **AXIS Philosophy**: keep it minimal (~150 LOC per component)
-4. Add tests and ensure they pass
-5. Submit a pull request
-
-## **CLI Reference**
-
-### **AXIS-PIPES**
-```bash
-axis_pipes.py run config.yaml [--input file.json] [--output result.json]
-axis_pipes.py validate config.yaml
-axis_pipes.py hash config.yaml
-```
-
-### **AXIS-RULES**  
-```bash
-axis_rules.py apply config.yaml [--input file.json] [--output result.json]
-axis_rules.py validate config.yaml  
-axis_rules.py hash config.yaml
-```
-
-### **AXIS-ADAPTERS**
-```bash
-axis_adapters.py exec config.yaml [--input file.json] [--output result.json] 
-axis_adapters.py validate config.yaml
-axis_adapters.py hash config.yaml
-axis_adapters.py exec config.yaml --dry-run  # Show what would be executed
-```
-
-## **Roadmap**
-
-### **Phase 1: Python Foundation** ✅
-- [x] Core three components (pipes, rules, adapters)
-- [x] Hash verification system
-- [x] CLI interfaces
-- [x] Demo pipeline
-
-### **Phase 2: Ecosystem** 🚧
-- [ ] KERN compiler (YAML → WASM/native)
-- [ ] MNEME memory system (Git for logic)
-- [ ] Web dashboard for pipeline monitoring
-- [ ] VS Code extension for YAML editing
-
-### **Phase 3: Cross-Platform** 🔮
-- [ ] Rust implementation (100x performance)
-- [ ] JavaScript/WASM targets  
-- [ ] Mobile SDKs (iOS/Android)
-- [ ] Edge deployment tools
-
-## **Philosophy: AXIS-PY**
-
-> *"Every line of code is a liability until proven otherwise."*
-
-AXIS follows the **AXIS-PY philosophy**:
-- **~150 LOC per component** (readable in one sitting)
-- **Pure functions wherever possible** (predictable behavior)
-- **Explicit over implicit** (no magic, no surprises)
-- **Composable by design** (Unix philosophy)
-- **Hash-verified execution** (mathematical guarantees)
-
-## **License**
-
+License
 MIT License - see LICENSE file for details.
+FAQ
+How does AXIS complement LLMs?
+LLMs excel at pattern recognition and creative synthesis but struggle with logical consistency. AXIS provides a deterministic substrate where LLM outputs can be verified, composed, and audited. Think of it as adding a "mathematical proof checker" to your AI workflow.
+How do I extend the structure registry?
+Create new structure types by inheriting from base classes in axis_structures.py. Each structure must implement to_dict(), generate deterministic hashes, and support the required RA operations for its type (sets for ∪/−, hashmaps for ⨝).
+How do I test determinism?
+Run the same pipeline multiple times and verify identical output hashes:
 
-## **Acknowledgments**
+python -m axis_pipes hash config.yaml  # Pipeline config hash
+echo '{"test": true}' | python -m axis_pipes run config.yaml | jq '._pipe_audit.output_hash'
 
-AXIS builds on insights from:
-- **Unix/Linux**: Universal composition through pipes
-- **React/Redux**: Pure functions and state management  
-- **Git**: Content-addressable storage and verification
-- **Lambda Calculus**: Mathematical foundation of computation
+Performance characteristics?
+AXIS prioritizes correctness over speed. Expect ~1K-10K records/second for complex pipelines. Structure registry provides O(1) joins for large datasets. Future KERN compilation layer will target high-performance backends.
+Can I use this in production?
+The RA engine and pipeline components are production-ready. Rule engine fixpoint iteration is scaffolded but needs conflict resolution policies for complex scenarios. Adapters should be carefully audited for your security requirements.
 
----
 
-**AXIS: Making computational trust as simple as `git commit`** ⚡
-
-*Unix pipes for structured data. React patterns for business logic. Git-style verification for everything.*
-
-**The terminal just got a nervous system.**

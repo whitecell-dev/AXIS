@@ -1,142 +1,118 @@
+# pyproject.toml
 [build-system]
 requires = ["setuptools>=61.0", "wheel"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "axis-py"
-version = "1.0.0"
-description = "React for Deterministic Reasoning - Unix pipes for structured data"
+name = "axis"
+version = "0.1.0"
+description = "Deterministic JSON math engine built on relational algebra and lambda calculus"
 readme = "README.md"
+requires-python = ">=3.9"
 license = {text = "MIT"}
 authors = [
-    {name = "AXIS Team", email = "team@axis.dev"}
-]
-maintainers = [
-    {name = "AXIS Team", email = "team@axis.dev"}
-]
-keywords = [
-    "terminal", "pipes", "json", "yaml", "functional-programming", 
-    "lambda-calculus", "deterministic", "hash-verification", 
-    "unix-tools", "structured-data", "business-logic"
+    {name = "AXIS Contributors", email = "axis@example.com"}
 ]
 classifiers = [
-    "Development Status :: 5 - Production/Stable",
+    "Development Status :: 4 - Beta",
     "Intended Audience :: Developers",
-    "Intended Audience :: System Administrators", 
-    "Topic :: Software Development :: Libraries :: Python Modules",
-    "Topic :: System :: Systems Administration",
-    "Topic :: Utilities",
+    "Intended Audience :: Information Technology", 
+    "Intended Audience :: Science/Research",
     "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
     "Programming Language :: Python :: 3",
-    "Programming Language :: Python :: 3.8",
-    "Programming Language :: Python :: 3.9", 
+    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
-    "Operating System :: OS Independent",
-    "Environment :: Console",
+    "Topic :: Database",
+    "Topic :: Scientific/Engineering",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Distributed Computing",
+    "Typing :: Typed"
 ]
-requires-python = ">=3.8"
+keywords = [
+    "relational-algebra",
+    "json",
+    "deterministic",
+    "lambda-calculus", 
+    "audit",
+    "verification",
+    "data-processing"
+]
+
 dependencies = [
-    # Core has zero dependencies - pure Python stdlib
+    "pyyaml>=6.0"
 ]
 
 [project.optional-dependencies]
-yaml = [
-    "pyyaml>=6.0"
-]
 dev = [
-    "pytest>=7.0",
-    "pytest-cov>=4.0",
-    "black>=23.0",
-    "mypy>=1.0",
+    "black>=23.0.0",
     "ruff>=0.1.0",
+    "mypy>=1.5.0",
+    "pytest>=7.4.0",
+    "pytest-cov>=4.1.0"
 ]
+
 test = [
-    "pytest>=7.0",
-    "pytest-cov>=4.0",
-    "pyyaml>=6.0",
+    "pytest>=7.4.0", 
+    "pytest-cov>=4.1.0",
+    "hypothesis>=6.82.0"
 ]
+
 docs = [
     "mkdocs>=1.5.0",
-    "mkdocs-material>=9.0.0",
-    "mkdocstrings[python]>=0.24.0",
+    "mkdocs-material>=9.2.0", 
+    "mkdocstrings[python]>=0.22.0"
 ]
-all = [
-    "pyyaml>=6.0",
-    "pytest>=7.0", 
-    "pytest-cov>=4.0",
-    "black>=23.0",
-    "mypy>=1.0",
-    "ruff>=0.1.0",
-    "mkdocs>=1.5.0",
-    "mkdocs-material>=9.0.0",
-]
-
-[project.urls]
-Homepage = "https://github.com/your-org/axis"
-Documentation = "https://axis-docs.example.com"
-Repository = "https://github.com/your-org/axis.git"
-"Bug Reports" = "https://github.com/your-org/axis/issues"
-Changelog = "https://github.com/your-org/axis/blob/main/CHANGELOG.md"
 
 [project.scripts]
-axis-pipes = "axis_pipes:cli"
-axis-rules = "axis_rules:cli"  
-axis-adapters = "axis_adapters:cli"
+axis-pipes = "axis.axis_pipes:cli"
+axis-rules = "axis.axis_rules:cli" 
+axis-adapters = "axis.axis_adapters:cli"
+axis-structures = "axis.axis_structures:cli"
 
-[tool.setuptools]
-py-modules = ["axis_pipes", "axis_rules", "axis_adapters", "demo_pipeline"]
+[project.urls]
+Homepage = "https://github.com/example/axis"
+Documentation = "https://axis.readthedocs.io/"
+Repository = "https://github.com/example/axis.git"
+Issues = "https://github.com/example/axis/issues"
+
+[tool.setuptools.packages.find]
+where = ["."]
+include = ["axis*"]
 
 [tool.setuptools.package-data]
-"*" = ["*.yaml", "*.yml", "*.json", "*.md"]
-
-# ============================================================================
-# Development Tools Configuration
-# ============================================================================
-
-[tool.pytest.ini_options]
-minversion = "7.0"
-addopts = [
-    "-ra",
-    "--strict-markers", 
-    "--strict-config",
-    "--cov=axis_pipes",
-    "--cov=axis_rules", 
-    "--cov=axis_adapters",
-    "--cov-branch",
-    "--cov-report=term-missing",
-    "--cov-fail-under=90",
-]
-testpaths = ["tests"]
-python_files = ["test_*.py", "*_test.py"]
-python_functions = ["test_*"]
-markers = [
-    "unit: Unit tests",
-    "integration: Integration tests", 
-    "slow: Slow running tests",
-]
+axis = ["*.yaml", "*.json", "examples/*"]
 
 [tool.black]
-line-length = 100
-target-version = ['py38', 'py39', 'py310', 'py311', 'py312']
+line-length = 88
+target-version = ['py39']
 include = '\.pyi?$'
-extend-exclude = '''
-/(
-  # directories
-  \.eggs
-  | \.git
-  | \.hg
-  | \.mypy_cache
-  | \.tox
-  | \.venv
-  | build
-  | dist
-)/
-'''
+
+[tool.ruff]
+target-version = "py39"
+line-length = 88
+select = [
+    "E",  # pycodestyle errors
+    "W",  # pycodestyle warnings
+    "F",  # pyflakes
+    "I",  # isort
+    "B",  # flake8-bugbear
+    "C4", # flake8-comprehensions
+    "UP", # pyupgrade
+]
+ignore = [
+    "E501",  # line too long, handled by black
+    "B008",  # do not perform function calls in argument defaults
+    "C901",  # too complex
+]
+
+[tool.ruff.per-file-ignores]
+"__init__.py" = ["F401"]
 
 [tool.mypy]
-python_version = "3.8"
+python_version = "3.9"
 warn_return_any = true
 warn_unused_configs = true
 disallow_untyped_defs = true
@@ -150,80 +126,13 @@ warn_no_return = true
 warn_unreachable = true
 strict_equality = true
 
-[[tool.mypy.overrides]]
-module = ["yaml", "yaml.*"]
-ignore_missing_imports = true
-
-[tool.ruff]
-target-version = "py38"
-line-length = 100
-select = [
-    "E",   # pycodestyle errors
-    "W",   # pycodestyle warnings  
-    "F",   # pyflakes
-    "I",   # isort
-    "B",   # flake8-bugbear
-    "C4",  # flake8-comprehensions
-    "UP",  # pyupgrade
-    "SIM", # flake8-simplify
+[tool.pytest.ini_options]
+minversion = "7.0"
+addopts = "-ra -q --strict-markers --strict-config"
+testpaths = [
+    "tests",
 ]
-ignore = [
-    "E501",  # line too long, handled by black
-    "B008",  # do not perform function calls in argument defaults
-    "C901",  # too complex
+python_files = [
+    "test_*.py",
+    "*_test.py",
 ]
-
-[tool.ruff.per-file-ignores]
-"tests/*" = ["S101"]  # Allow assert statements in tests
-
-[tool.coverage.run]
-source = ["axis_pipes", "axis_rules", "axis_adapters"]
-omit = [
-    "*/tests/*",
-    "*/venv/*",
-    "*/.venv/*",
-    "*/env/*",
-    "*/.env/*",
-]
-
-[tool.coverage.report]
-exclude_lines = [
-    "pragma: no cover",
-    "def __repr__",
-    "if self.debug:",
-    "if settings.DEBUG",
-    "raise AssertionError",
-    "raise NotImplementedError",
-    "if 0:",
-    "if __name__ == .__main__.:",
-    "class .*\\bProtocol\\):",
-    "@(abc\\.)?abstractmethod",
-]
-
-# ============================================================================
-# AXIS-Specific Configuration
-# ============================================================================
-
-[tool.axis]
-# Configuration for AXIS tools themselves
-version = "1.0.0"
-philosophy = "AXIS-PY: Every line of code is a liability until proven otherwise"
-
-[tool.axis.limits]
-# Enforce AXIS-PY philosophy constraints
-max_loc_per_file = 200
-max_functions_per_file = 15
-max_complexity = 8
-max_dependencies = 0  # Core has zero dependencies
-
-[tool.axis.components]
-pipes = "axis_pipes.py"
-rules = "axis_rules.py" 
-adapters = "axis_adapters.py"
-demo = "demo_pipeline.py"
-
-[tool.axis.hash_verification]
-# Enable hash verification in development
-enabled = true
-algorithm = "sha3-256"
-canonical_json = true

@@ -1,0 +1,14 @@
+structures:
+  departments:
+    type: hashmap
+    key: dept_id
+    materialize: from_data
+    data:
+      - {dept_id: "eng", dept_name: "Engineering", budget: 500000}
+      - {dept_id: "sales", dept_name: "Sales", budget: 300000}
+
+pipeline:
+  - join:
+      on: dept_id
+      using: departments
+  - project: ["left_user", "right_dept_name", "right_budget"]

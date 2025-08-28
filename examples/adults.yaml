@@ -1,0 +1,3 @@
+pipeline:
+  - select: "age >= 18"
+  - project: ["name", "age"]

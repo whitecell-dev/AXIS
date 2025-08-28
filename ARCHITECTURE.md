@@ -1,396 +1,286 @@
+```markdown
+# ARCHITECTURE.md
+
 # AXIS Architecture
 
-**React for Deterministic Reasoning**
-
-## **Core Philosophy: AXIS-PY**
-
-> *"We split the atom of software complexity and found that simplicity was the most powerful force inside."*
-
-AXIS follows the **AXIS-PY philosophy**:
-- **Every line of code is a liability until proven otherwise**
-- **Keep only what's essential for YAML → JSON → Pure Functions**
-- **Replace "magic" with explicit, predictable code**
-- **~150 LOC per component** (readable in one sitting)
-- **Mathematical guarantees over clever abstractions**
-
-## **The Three-Layer Architecture**
-
-```
-📥 Raw Input (JSON/YAML)
-         ↓
-🔀 AXIS-PIPES (α-conversion)
-    Data normalization, validation, reshaping
-         ↓  
-⚖️ AXIS-RULES (β-reduction)
-    Pure decision logic, state transformations
-         ↓
-🔌 AXIS-ADAPTERS (monadic effects)
-    Controlled side effects, external integration
-         ↓
-📤 Final Output (JSON + Side Effects)
-```
-
-**Each layer is a pure function with hash verification.**
-
-## **Component Breakdown**
-
-### **1. AXIS-PIPES (~150 LOC)**
-*Alpha-conversion for structured data*
-
-**Purpose**: Transform any input into clean, normalized JSON
-**Guarantees**: Same config + same input = same hash (always)
-
-```python
-# Core function signature:
-def apply_pipeline(config: dict, input_data: dict) -> dict:
-    # α-conversion: rename, reshape, validate, enrich
-    return normalized_data
-```
-
-**Operations:**
-- **extract**: Pull specific fields/paths from nested data
-- **rename**: Change field names (`user_name` → `name`)  
-- **validate**: Type checking and coercion (`"25"` → `25`)
-- **filter**: Remove unwanted data based on conditions
-- **enrich**: Add computed fields (`timestamp: "now()"`)
-- **transform**: Template-based field generation
-
-**Security**: Pure functions only, no file I/O, no network access
-
-### **2. AXIS-RULES (~150 LOC)**
-*Beta-reduction for business logic*
-
-**Purpose**: Apply if/then logic to transform state deterministically
-**Guarantees**: Pure functions, no side effects, hash-verified
-
-```python
-# Core function signature:
-def apply_rules(rules: List[dict], state: dict) -> dict:
-    # β-reduction: evaluate conditions, apply transformations
-    return new_state
-```
-
-**Features:**
-- **Secure AST parsing**: Only whitelisted operations (`==`, `>`, `and`, etc.)
-- **Dot notation access**: `user.role`, `order.total`
-- **Conditional logic**: `if: "age >= 18"` then: `{adult: true}`
-- **Merge policies**: `errors+: ["message"]` (append to arrays)
-- **Deterministic ordering**: Rules applied in consistent sequence
-
-**Security**: No `eval()`, no dynamic code execution, AST whitelist enforced
-
-### **3. AXIS-ADAPTERS (~150 LOC)**
-*Monadic effects for external systems*
-
-**Purpose**: Execute side effects safely with full audit trail
-**Guarantees**: Template-based substitution, execution logging, timeout protection
-
-```python
-# Core function signature:  
-def execute_adapters(config: dict, input_data: dict) -> dict:
-    # Execute commands with input substitution
-    return execution_results
-```
-
-**Capabilities:**
-- **Unix tool integration**: `sqlite3`, `curl`, `mail`, `psql`, etc.
-- **Template substitution**: `{{user.email}}` → `alice@example.com`
-- **Safe execution**: Subprocess isolation, timeouts, logging
-- **Audit trail**: Full record of what commands were executed
-- **Dry-run mode**: Show what would be executed without running
-
-**Security**: No shell injection, controlled parameter substitution, execution sandboxing
-
-## **Mathematical Foundation**
-
-### **Lambda Calculus Implementation**
-
-AXIS implements pure λ-calculus for structured data:
-
-```
-λ-term                  AXIS Component
-------                  --------------
-α-conversion           AXIS-PIPES (rename variables)
-β-reduction            AXIS-RULES (apply functions)  
-η-conversion           (rarely needed)
-Church encoding        AXIS-ADAPTERS (effects as data)
-```
-
-### **Cryptographic Verification**
-
-Every component generates content-addressable hashes:
-
-```python
-def generate_hash(config: dict) -> str:
-    canonical = canonicalize(config)  # Sort keys, normalize numbers
-    json_str = json.dumps(canonical, sort_keys=True, separators=(',', ':'))
-    return sha3_256(json_str).hexdigest()
-```
-
-**Hash Properties:**
-- **Deterministic**: Same config = same hash (always)
-- **Collision-resistant**: SHA3-256 cryptographic strength
-- **Cross-platform**: Identical across Python, Rust, JS, WASM
-- **Verifiable**: Can prove two systems have identical logic
-
-## **Data Flow Architecture**
-
-### **Pipeline Execution Model**
-
-```bash
-# Terminal pipeline
-cat input.json \
-  | axis_pipes.py run normalize.yaml \
-  | axis_rules.py apply logic.yaml \  
-  | axis_adapters.py exec effects.yaml
-
-# Each step:
-# 1. Reads JSON from stdin
-# 2. Loads YAML config
-# 3. Applies transformations
-# 4. Outputs JSON to stdout
-# 5. Includes hash audit trail
-```
-
-### **State Transitions**
-
-```
-Raw Data → Clean Data → Logic Data → Effect Results
-   ↓           ↓           ↓            ↓
-Hash A      Hash B      Hash C       Hash D
-
-# Hash chain proves entire execution path
-```
-
-### **Error Handling**
-
-```python
-# Errors are data, not exceptions
-{
-    "user": "alice",
-    "age": 25,
-    "errors": ["Invalid email format"],  # Errors accumulate
-    "_pipe_audit": {"hash": "abc123..."},
-    "_rule_audit": {"hash": "def456..."}
-}
-```
-
-## **Cross-Platform Strategy**
-
-### **Current: Python Reference Implementation**
-
-```
-axis_pipes.py     150 LOC  Pure Python, stdlib only
-axis_rules.py     150 LOC  AST parser, hash verification  
-axis_adapters.py  150 LOC  Subprocess management
-```
-
-### **Future: Multi-Language Targets**
-
-```
-Language    Performance    Use Case
---------    -----------    --------
-Python      1x (baseline)  Development, prototyping
-Rust        100x           Production servers, CLI tools
-JavaScript  10x            Frontend, Node.js, serverless  
-WASM        50x            Browser, edge, universal deployment
-Go          20x            Microservices, cloud native
-C           200x           Embedded systems, IoT
-```
-
-**Key Insight**: The 450 LOC core is simple enough to port to any language while maintaining identical behavior (verified by hash).
-
-## **Security Model**
-
-### **Attack Surface Minimization**
-
-```
-Component       Attack Vectors           Mitigations
----------       --------------           -----------
-PIPES           Malformed JSON           JSON parser validation
-                Type confusion           Explicit type coercion
-                
-RULES           Code injection           AST whitelist, no eval()
-                Logic bombs              Pure functions only
-                
-ADAPTERS        Command injection        Template-based substitution
-                Path traversal           Subprocess isolation
-                Resource exhaustion      Timeouts, resource limits
-```
-
-### **Trust Boundaries**
-
-```
-Trusted:        YAML configs (version controlled, reviewed)
-                JSON data (validated by pipes)
-                Hash verification system
-
-Semi-trusted:   Template substitution (controlled parameter injection)
-                Subprocess execution (isolated, logged)
-
-Untrusted:      Raw user input (must pass through pipes)
-                External command output (treated as opaque data)
-```
-
-## **Performance Characteristics**
-
-### **Python Implementation**
-
-```
-Operation           Time        Memory      Notes
----------           ----        ------      -----
-PIPES processing    ~1ms        ~1MB        Per 1KB JSON
-RULES evaluation    ~0.5ms      ~0.5MB      Per 10 rules  
-ADAPTERS execution  ~10ms       ~2MB        Per command (subprocess overhead)
-Hash generation     ~0.1ms      ~0.1MB      SHA3-256
-JSON parse/serialize ~0.2ms      ~1MB        Stdlib json module
-```
-
-### **Scaling Properties**
-
-- **Linear with data size**: O(n) where n = JSON size
-- **Linear with rule count**: O(r) where r = number of rules
-- **Constant memory overhead**: ~5MB baseline per process
-- **Parallel execution**: Each component can run on different cores
-- **Horizontal scaling**: Stateless, no shared state between executions
-
-## **Extensibility Points**
-
-### **Adding New PIPE Operations**
-
-```python
-# In axis_pipes.py, add to _apply_step():
-elif step_type == 'my_operation':
-    return self._my_operation(data, step_config)
-
-def _my_operation(self, data: dict, config: dict) -> dict:
-    # Your custom α-conversion logic here
-    return transformed_data
-```
-
-### **Adding New AST Operations**
-
-```python
-# In axis_rules.py, extend ALLOWED_OPS:
-ALLOWED_OPS.add('my_operator')
-
-# Add evaluation in evaluate_ast():
-elif op == 'my_operator':
-    return custom_logic(left, right)
-```
-
-### **Adding New Adapter Types**
-
-```python
-# In axis_adapters.py, extend _execute_adapter():
-if adapter_type == 'my_adapter':
-    return self._execute_my_adapter(adapter, data)
-
-def _execute_my_adapter(self, adapter: dict, data: dict) -> dict:
-    # Your custom effect execution logic
-    return execution_result
-```
-
-## **Integration Patterns**
-
-### **Web Framework Integration**
-
-```python
-# Flask
-@app.route('/process', methods=['POST'])
-def process_request():
-    data = request.get_json()
-    
-    # AXIS pipeline
-    cleaned = pipes_engine.run(data)
-    result = rules_engine.apply(cleaned)  
-    effects = adapters_engine.exec(result)
-    
-    return jsonify(result)
-```
-
-### **Cron Job Automation**
-
-```bash
-# /etc/cron.d/daily-reports
-0 9 * * * cat /data/daily.json | axis_pipes.py run clean.yaml | axis_rules.py apply analysis.yaml | axis_adapters.py exec email.yaml
-```
-
-### **CI/CD Pipeline Integration**
+## System Overview
+
+Input JSON → Pipeline Engine → RA Executor → Canonicalize → SHA3-256 Receipts
+↓              ↓              ↓              ↓              ↓
+Raw Data    YAML Config    σ/π/⨝/∪/−     Sorted Keys    Audit Hash
+↓
+Structure Registry (O(1) joins)
+↓
+Adapters (Controlled Side Effects)
+
+AXIS transforms JSON data through deterministic pipelines while maintaining cryptographic audit trails. The core engine applies relational algebra operations in isolation, with adapters handling all external interactions at the system boundary.
+
+## Execution Model
+
+### α-Conversion: Pipeline Rewriting
+Configuration YAML undergoes normalization before execution:
+- Field renaming and path resolution
+- Structure reference validation  
+- Operation dependency ordering
+- Canonical form generation for hashing
+
+### β-Style Reduction: Rule Application
+The rule engine applies transformations through fixpoint iteration:
+- Conditional logic evaluation using safe AST parsing
+- State updates through pure function application
+- Conflict detection and priority-based resolution
+- Termination when no further changes occur
+
+### Determinism Guarantee
+Every computation is reproducible:
+1. **Input canonicalization**: Sort dictionary keys, normalize numbers
+2. **Operation ordering**: Deterministic pipeline step sequence
+3. **Hash stability**: SHA3-256 over canonical JSON representation
+4. **Receipt generation**: Auditable proof of computation
+
+## Relational Algebra Operations
+
+### Selection (σ) - Filter Records
+Keeps records matching a predicate condition.
 
 ```yaml
-# .github/workflows/deploy.yml
-- name: Process deployment data
-  run: |
-    cat deploy_config.json \
-      | axis_pipes.py run validate_config.yaml \
-      | axis_rules.py apply deployment_logic.yaml \
-      | axis_adapters.py exec deploy_to_k8s.yaml
-```
+# σ(age >= 18)
+select: "age >= 18"
 
-## **Future Architecture Evolution**
+# Against JSON: [{"name": "Alice", "age": 25}, {"name": "Bob", "age": 17}]
+# Returns: [{"name": "Alice", "age": 25}]
 
-### **KERN Compiler Layer**
+Projection (π) - Select Columns
+Extracts specified fields from records.
 
-```
-YAML Rules → KERN → Target Code
-             ↓
-         [WASM Binary]
-         [Native Code]  
-         [JavaScript]
-         [Rust Code]
-```
+# π(name, age)
+project: ["name", "age"]
 
-**Purpose**: Compile AXIS YAML to native code for maximum performance
+Join (⨝) - Combine Relations
+Merges records from two datasets on a common field.
+# R ⨝(dept_id) S  
+join:
+  on: dept_id
+  using: departments  # Structure registry reference
 
-### **MNEME Memory Layer**
+Produces records with left_* and right_* prefixed fields from joined datasets.
+Union (∪) - Combine Sets
+Merges two datasets eliminating duplicates based on record hashes.
 
-```
-Git-like Version Control for Logic
-├── rules/
-│   ├── HEAD → refs/heads/main
-│   ├── objects/
-│   │   ├── abc123... (rule content)
-│   │   └── def456... (rule content)
-│   └── refs/heads/main
-```
+union:
+  with: [{"additional": "data"}]
 
-**Purpose**: Version control, rollback, and audit trail for business logic
+Difference (−) - Set Subtraction
+Removes records present in the second dataset from the first.
 
-### **Distributed Execution**
+difference:  
+  using: blocked_users  # Remove using prebuilt set
 
-```
-Load Balancer
-     ↓
-[AXIS Node 1] [AXIS Node 2] [AXIS Node 3]
-     ↓             ↓             ↓
-Hash=abc123   Hash=abc123   Hash=abc123
-```
+Semi-Join (⋉) - Exists Filter
+Keeps records where a field value exists in a reference set.
 
-**Purpose**: Scale-out execution with hash verification ensuring consistency
+# Keep users in admin whitelist
+exists_in:
+  field: user_id
+  using: admin_whitelist
 
-## **Design Principles**
+Anti-Join (⋊) - Not Exists Filter
+Keeps records where a field value does NOT exist in a reference set.
 
-### **1. Simplicity Over Cleverness**
-- **150 LOC limit** enforces focus on essentials
-- **No framework dependencies** reduces complexity
-- **Explicit over implicit** makes behavior predictable
+# Exclude blocked users
+not_exists_in:
+  field: user_id  
+  using: blocked_users
 
-### **2. Composability Over Monoliths**  
-- **Three focused components** instead of one large system
-- **Unix pipe compatibility** leverages existing ecosystem
-- **JSON as universal interface** enables any-to-any composition
+Aggregation (γ) - Group Operations
+Groups records and applies aggregate functions (in development).
 
-### **3. Verification Over Trust**
-- **Hash-based verification** provides mathematical proof
-- **Audit trails** enable debugging and compliance
-- **Deterministic execution** eliminates "works on my machine"
+# Future syntax
+aggregate:
+  by: department
+  op: sum
+  field: salary
 
-### **4. Pure Functions Over Side Effects**
-- **Two components are pure** (pipes, rules)
-- **One component isolates effects** (adapters)
-- **Clear boundaries** make reasoning easier
+Structure Registry
+Pre-materialized data structures provide O(1) operations for large datasets.
+AxisHashMap
+Indexed key-value storage for fast joins.
 
-This architecture creates a **computational substrate for the AI era**—simple enough for humans to understand, powerful enough to run any logic, verified enough to trust in production.
+# Materialized from config
+departments = AxisHashMap(
+    data=[{"dept_id": "eng", "name": "Engineering"}],
+    key_field="dept_id"
+)
 
-**AXIS: The nervous system for deterministic computation.** 🚀
+# O(1) lookup in joins
+records = departments.get("eng")  # Returns matching records
+
+AxisSet
+Hash-based set operations with field indexing.
+
+# Exact record membership
+admin_set = AxisSet(data=[{"user": "alice", "role": "admin"}])
+is_member = admin_set.contains({"user": "alice", "role": "admin"})
+
+# Field-based membership for semi/anti-joins  
+has_user = admin_set.contains_field_value("user", "alice")
+
+AxisQueue
+Ordered data for streaming operations.
+
+event_queue = AxisQueue(data=[{"event": "login", "user": "alice"}])
+next_events = event_queue.peek(5)  # Get next 5 without removing
+
+Structure Materialization
+Structures are built from various sources:
+
+structures:
+  users_by_id:
+    type: hashmap
+    key: user_id
+    materialize: from_data  # Inline data
+    data: [{"user_id": "u1", "name": "Alice"}]
+    
+  external_data:
+    type: set
+    materialize: from_file  # External JSON file
+    source: "./data/blocked_users.json"
+    
+  live_data:
+    type: queue  
+    materialize: from_adapter  # Via external command
+    adapter:
+      command: redis_get
+      key: user_events
+
+Security & Trust Model
+Safe Expression Evaluation
+Predicate expressions use AST-only evaluation with restricted grammar:
+
+# Allowed operations
+ALLOWED_OPS = {'eq', 'noteq', 'gt', 'lt', 'gte', 'lte', 'in', 'notin', 'and', 'or', 'not'}
+
+# Safe evaluation process:  
+# 1. Parse to AST using Python's ast module
+# 2. Validate only allowed node types and operations
+# 3. Evaluate against data context without code execution
+
+Canonicalization Rules
+Deterministic JSON normalization ensures hash stability:
+
+Dictionary key ordering: Sort keys alphabetically
+Number normalization: Convert int/float to consistent float representation
+Recursive application: Apply to nested objects and arrays
+Non-finite handling: Reject NaN, Infinity values
+
+def canonicalize(obj):
+    if isinstance(obj, dict):
+        return {k: canonicalize(obj[k]) for k in sorted(obj.keys())}
+    elif isinstance(obj, list):
+        return [canonicalize(v) for v in obj]
+    elif isinstance(obj, (int, float)):
+        f = float(obj)
+        if not math.isfinite(f):
+            raise ValueError("Non-finite numbers not allowed")
+        return f
+    return obj
+
+SHA3-256 Strategy
+Cryptographic hashing provides tamper-evident receipts:
+
+Input hash: Canonicalized input data
+Config hash: Canonicalized pipeline/rule configuration
+Output hash: Canonicalized computation results
+Operations hash: Canonicalized sequence of applied operations
+
+Audit Receipts
+Every computation produces verifiable audit trails:
+
+{
+  "_pipe_audit": {
+    "pipeline_hash": "a1b2c3d4e5f6...",
+    "input_hash": "1a2b3c4d5e6f...",  
+    "output_hash": "f1e2d3c4b5a6...",
+    "steps_executed": 3,
+    "structures_used": ["departments", "admin_whitelist"],
+    "ra_audit": {
+      "operations_count": 5,
+      "operations_hash": "9z8y7x6w5v..."
+    }
+  }
+}
+
+Extensibility
+Adding New RA Operations
+Extend the RelationalAlgebra class with new primitives:
+
+class RelationalAlgebra:
+    @staticmethod
+    def my_operation(data, config):
+        # Implement new RA operation
+        pass
+
+# Register in apply_ra_operation dispatcher
+def apply_ra_operation(data, operation):
+    if 'my_operation' in operation:
+        return RelationalAlgebra.my_operation(data, operation['my_operation'])
+
+Custom Adapters
+Create new adapter types for external system integration:
+
+def _execute_adapter(self, adapter, data, index, structures_used_log):
+    command = adapter.get('command')
+    
+    if command == 'my_custom_adapter':
+        # Implement custom external interaction
+        return self._handle_custom_adapter(adapter, data)
+
+Enhanced Structure Types
+Add new structure implementations:
+
+class AxisCustomStructure:
+    def __init__(self, data, config, name="anonymous"):
+        self.data = data
+        self.config = config
+        self.name = name
+        self._build_custom_index()
+        self.structure_hash = self._generate_hash()
+    
+    def custom_operation(self, query):
+        # Implement structure-specific operations
+        pass
+
+Richer Type Validation
+Extend validation rules in pipeline engine:
+def _validate(self, data, config):
+    for field, type_spec in config.items():
+        if type_spec == "custom_type":
+            # Add custom validation logic
+            pass
+
+Performance Characteristics
+Time Complexity
+
+Selection/Projection: O(n) where n = record count
+Hash-based joins: O(n + m) with structure registry, O(n*m) without
+Set operations: O(n + m) with hash-based structures
+Pipeline execution: O(steps * records * complexity_per_operation)
+
+Space Complexity
+
+Structure registry: O(unique_records) for sets, O(unique_keys * records_per_key) for hashmaps
+Canonicalization: O(data_size) temporary storage during normalization
+Audit trails: O(operations + metadata) - minimal overhead
+
+Optimization Strategies
+
+Structure reuse: Hash-stable structures cached across pipeline runs
+Early filtering: Apply σ operations before expensive joins
+Index-based lookups: O(1) structure registry operations
+Lazy evaluation: Future KERN compilation will enable query optimization
+
+Future layers (MNEME memory, KERN compilation) will add append-only audit ledgers and compiled query execution for high-performance scenarios.
+
+
+
+

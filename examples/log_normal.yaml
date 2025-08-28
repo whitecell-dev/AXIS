@@ -1,0 +1,22 @@
+pipeline:
+  # Standardize log field names (match the test data structure)
+  - rename:
+      log_level: level
+      log_message: message
+      log_timestamp: timestamp
+      source_ip: ip
+      response_code: status_code
+      response_size: bytes
+      
+  # Validate and coerce types
+  - validate:
+      status_code: int
+      bytes: int
+      
+  # Enrich with computed fields
+  - enrich:
+      processed_at: now()
+      
+  # Keep the method and path as-is since they're already correct
+  - transform:
+      clean_path: "{{path}}"

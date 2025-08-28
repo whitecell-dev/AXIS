@@ -1,0 +1,98 @@
+component: SecurityAnalysis
+rules:
+  # HTTP Status Code Analysis (mutually exclusive with priorities)
+  - if: "status_code >= 500"
+    priority: 20
+    then:
+      severity: "high"
+      alert_type: "server_error"
+      investigate: true
+      
+  - if: "status_code >= 400 and status_code < 500"
+    priority: 15
+    then:
+      severity: "medium"
+      alert_type: "client_error"
+      investigate: false
+      
+  - if: "status_code >= 200 and status_code < 400"
+    priority: 10
+    then:
+      severity: "low"
+      alert_type: "success"
+      investigate: false
+
+  # Suspicious Activity Detection
+  - if: "path == '/admin' or path == '/wp-admin'"
+    then:
+      suspicious: true
+      threat_type: "admin_access"
+      errors+: ["Admin path access detected"]
+      
+  - if: "method == 'POST' and status_code == 200"
+    then:
+      data_submitted: true
+      
+  - if: "method == 'GET' and bytes > 1000000"
+    then:
+      large_response: true
+      bandwidth_alert: true
+
+  # IP-based Risk Assessment
+  - if: "ip == '127.0.0.1' or ip == 'localhost'"
+    then:
+      risk_level: "low"
+      local_access: true
+    else:
+      risk_level: "medium"
+      external_access: true
+
+  # Combined Risk Scoring (ensure all paths get a score)
+  - if: "suspicious == true and severity == 'high'"
+    priority: 25
+    then:
+      risk_score: 10
+      immediate_action: true
+      
+  - if: "suspicious == true and severity == 'medium'"
+    priority: 20
+    then:
+      risk_score: 7
+      immediate_action: false
+      
+  - if: "external_access == true and alert_type == 'server_error'"
+    priority: 18
+    then:
+      risk_score: 8
+      monitor_ip: true
+      immediate_action: false
+      
+  # Default risk score for anything not caught above
+  - if: "severity == 'high'"
+    priority: 15
+    then:
+      risk_score: 6
+      immediate_action: false
+      
+  - if: "severity == 'medium'"
+    priority: 10
+    then:
+      risk_score: 4
+      immediate_action: false
+      
+  - if: "severity == 'low'"
+    priority: 5
+    then:
+      risk_score: 2
+      immediate_action: false
+
+  # Log Level Specific Rules
+  - if: "level == 'ERROR' or level == 'CRITICAL'"
+    then:
+      requires_attention: true
+      escalate: true
+      
+  - if: "level == 'WARNING' or level == 'WARN'"
+    then:
+      requires_attention: false
+      monitor: true

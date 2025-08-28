@@ -1,0 +1,72 @@
+adapters:
+  # Console logging with risk indicators
+  - name: log_security_event
+    command: echo
+    args: 
+      - "🔍 [{{level}}] {{ip}} → {{path}} | Status: {{status_code}} | Risk: {{risk_score}}/10 | {{alert_type}}"
+
+  # Create security reports directory
+  - name: create_security_dirs
+    command: mkdir
+    args:
+      - "-p"
+      - "security/alerts"
+      - "security/logs"
+      - "security/reports"
+
+  # Save high-risk events as individual JSON files
+  - name: save_high_risk_event
+    command: bash
+    args:
+      - "-c"
+      - "mkdir -p security/alerts && if [ '{{risk_score}}' -ge '6' ]; then filename=$(echo '{{ip}}_{{timestamp}}' | tr ' :.-' '____' | tr -cd '[:alnum:]_') && cat > \"security/alerts/${filename}_alert.json\"; else echo 'Low risk event ({{risk_score}}) - not saving individual file'; fi"
+    input: |
+      {
+        "timestamp": "{{timestamp}}",
+        "ip": "{{ip}}",
+        "method": "{{method}}",
+        "path": "{{path}}",
+        "status_code": {{status_code}},
+        "bytes": {{bytes}},
+        "level": "{{level}}",
+        "message": "{{message}}",
+        "risk_score": {{risk_score}},
+        "alert_type": "{{alert_type}}",
+        "severity": "{{severity}}",
+        "suspicious": {{suspicious}},
+        "immediate_action": {{immediate_action}},
+        "processed_at": "{{processed_at}}"
+      }
+
+  # Maintain security log CSV
+  - name: update_security_log
+    command: bash
+    args:
+      - "-c"
+      - "mkdir -p security && [ ! -f security/security_events.csv ] && echo 'timestamp,ip,method,path,status_code,level,risk_score,alert_type,severity' > security/security_events.csv; echo '{{timestamp}},\"{{ip}}\",{{method}},\"{{path}}\",{{status_code}},{{level}},{{risk_score}},{{alert_type}},{{severity}}' >> security/security_events.csv"
+
+  # Generate immediate alerts for critical events
+  - name: critical_alert
+    command: bash
+    args:
+      - "-c"
+      - "if [ '{{immediate_action}}' = 'true' ]; then echo '🚨 CRITICAL SECURITY ALERT: {{ip}} accessed {{path}} with {{status_code}} - INVESTIGATE IMMEDIATELY'; fi"
+
+  # Count and report suspicious IPs
+  - name: track_suspicious_ips
+    command: bash
+    args:
+      - "-c"
+      - "if [ '{{suspicious}}' = 'true' ]; then mkdir -p security && echo '{{ip}}' >> security/suspicious_ips.txt; fi"
+
+  # Generate summary for monitoring dashboard
+  - name: dashboard_summary
+    command: echo
+    args:
+      - "📊 Event Summary: {{method}} {{path}} from {{ip}} → {{severity}} severity ({{risk_score}}/10)"
+
+  # Audit timestamp
+  - name: security_audit_timestamp
+    command: date
+    args:
+      - "+Security analysis completed at %Y-%m-%d %H:%M:%S"
